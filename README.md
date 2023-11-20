@@ -4,18 +4,26 @@ Simple UI for displaying/updating data from multiple entities in a web browser.
 
 ## Installation
 
-Install requirements:
+Install package:
 
 ```sh
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ## Usage
 
 ### Run the server
 
+Start with default options:
+
 ```sh
-python main.py
+multi-entity-debugger
+```
+
+Command line help:
+
+```sh
+multi-entity-debugger -h
 ```
 
 ### Add messages for an entity

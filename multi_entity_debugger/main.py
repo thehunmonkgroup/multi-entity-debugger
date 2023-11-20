@@ -1,3 +1,4 @@
+import os
 import sys
 import threading
 import logging
@@ -69,10 +70,16 @@ class FastAPIWebSocketApp:
         self.port = port
         self.queue = custom_queue if custom_queue else queue.Queue()
         self.manager = WebSocketManager(self.queue)
+        self.package_root = self.get_package_root()
         self.setup_routes()
 
+    def get_package_root(self):
+        package_name = self.__class__.__module__.split(".")[0]
+        package_root = os.path.dirname(os.path.abspath(sys.modules[package_name].__file__))
+        return package_root
+
     def setup_routes(self):
-        self.app.mount("/static", StaticFiles(directory="static"), name="static")
+        self.app.mount("/static", StaticFiles(directory=f"{self.package_root}/static"), name="static")
 
         @self.app.websocket("/ws")
         async def websocket_endpoint(websocket: WebSocket):
@@ -95,7 +102,7 @@ class FastAPIWebSocketApp:
 
         @self.app.get("/")
         async def get():
-            with open('index.html', 'r') as f:
+            with open(f"{self.package_root}/index.html", 'r') as f:
                 return HTMLResponse(f.read())
 
     def add_message_to_queue(self, data):
@@ -129,7 +136,7 @@ class FastAPIWebSocketApp:
             sys.exit()
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Run the Multi-entity debugger.")
     parser.add_argument("--host", type=str, default=DEFAULT_HOST, help="Host for the server to listen on. (default: %(default)s)")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port for the server to listen on. (default: %(default)s)")
@@ -139,3 +146,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     fastapi_app = FastAPIWebSocketApp(host=args.host, port=args.port)
     fastapi_app.start()
+
+
+if __name__ == "__main__":
+    main()
