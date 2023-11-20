@@ -1,6 +1,6 @@
-# HAAS Debug UI
+# Multi-entity debugger
 
-Simple UI for displaying data from HAAS agents
+Simple UI for displaying/updating data from multiple entities in a web browser.
 
 ## Installation
 
@@ -12,19 +12,29 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the server:
+### Run the server
 
 ```sh
 python main.py
 ```
 
+### Add messages for an entity
+
 `POST` JSON to `http://localhost:8000/send-message/`
 
 ```sh
-curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"message":"hello world", "agent":"agent 1"}'
+curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"id":"agent_1", "label":"Agent 1", "message":"hello world"}'
 ```
 
-Required fields are:
+## Message format
 
- * `agent`: The name of the agent
- * `message`: The agent message
+Required fields:
+
+ * `id`: The ID of the entity
+ * `label`: A human-readable label for the entity
+
+Optional fields:
+
+ * `timestamp`: Timestamp of the message -- if not supplied, defaults to time the message was received by the debugger
+
+All fields besides `id' and `label` will be displayed in the 'Messages' output section for that entity.
