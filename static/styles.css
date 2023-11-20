@@ -1,0 +1,56 @@
+.agent-link {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.agent-link a, .agent-link a:hover, .agent-link a:focus, .agent-link a:visited {
+    color: white;
+}
+
+.agent-link:hover, .agent-link:focus {
+    background-color: #0056b3;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.agent-link:active {
+    background-color: #004085;
+    color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+}
+
+.agent-link:visited {
+    background-color: #007bff;
+    color: white;
+}
+
+.message-container {
+    margin-bottom: 10px;
+}
+
+.message-container dl {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.message-container dt {
+    font-weight: bold;
+}
+
+.message-container dd {
+    margin: 0;
+    padding-left: 10px;
+}
+
