@@ -28,10 +28,31 @@ multi-entity-debugger -h
 
 ### Add messages for an entity
 
+#### POST interface
+
 `POST` JSON to `http://localhost:8000/send-message/`
+
+Via cURL:
 
 ```sh
 curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"id":"agent_1", "label":"Agent 1", "message":"hello world"}'
+```
+
+Via Python requests:
+
+```python
+import requests
+import json
+url = "http://localhost:8000/send-message/"
+headers = {
+    "Content-Type": "application/json"
+}
+data = {
+    "id": "agent_1",
+    "label": "Agent 1",
+    "message": "hello world"
+}
+response = requests.post(url, headers=headers, data=json.dumps(data))
 ```
 
 ## Message format
