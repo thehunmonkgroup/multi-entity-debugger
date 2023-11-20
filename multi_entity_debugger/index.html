@@ -3,6 +3,10 @@
 <head>
     <title>Multi-entity debugger</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/4.1.2/backbone.marionette.min.js"></script>
 </head>
 <body>
     <h1>Multi-entity debugger</h1>
@@ -10,6 +14,25 @@
     <div id="entities"></div>
     <h1>Messages</h1>
     <div id="messages"></div>
+
+    <!-- Templates -->
+    <script type="text/template" id="entity-template">
+        <div class="entity-link" id="link-<%- name %>">
+            <a href="#" data-id="<%- name %>"><%- label %></a>
+        </div>
+    </script>
+    <script type="text/template" id="message-template">
+        <div class="message-container">
+            <dl>
+                <% _.each(message, function(value, key) {
+                    if (key !== 'name' && key !== 'label') { %>
+                        <dt><%- key %></dt>
+                        <dd><%- value %></dd>
+                    <% }
+                }); %>
+            </dl>
+        </div>
+    </script>
 
     <script src="/static/websocket.js"></script>
 </body>

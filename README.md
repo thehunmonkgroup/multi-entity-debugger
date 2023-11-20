@@ -51,7 +51,7 @@ New messages are added dynamically to existing entities.
 Via cURL:
 
 ```sh
-curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"id":"agent_1", "label":"Agent 1", "message":"hello world"}'
+curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"name":"agent_1", "label":"Agent 1", "message":"hello world"}'
 ```
 
 Via Python requests:
@@ -64,7 +64,7 @@ headers = {
     "Content-Type": "application/json"
 }
 data = {
-    "id": "agent_1",
+    "name": "agent_1",
     "label": "Agent 1",
     "message": "hello world"
 }
@@ -88,7 +88,7 @@ count = 1
 while True:
     time.sleep(1)
     print(f"Sending message {count}")
-    data = Message(id='entity_1', label='Entity 1', message=f'Message {count}')
+    data = Message(name='entity_1', label='Entity 1', message=f'Message {count}')
     debugger.add_message_to_queue(data)
     count += 1
 ```
@@ -97,11 +97,11 @@ while True:
 
 Required fields:
 
- * `id`: The ID of the entity
+ * `name`: The machine name of the entity
  * `label`: A human-readable label for the entity
 
 Optional fields:
 
  * `timestamp`: Timestamp of the message -- if not supplied, defaults to time the message was received by the debugger
 
-All fields besides `id` and `label` will be displayed in the `Messages` output section for that entity.
+All fields besides `name` and `label` will be displayed in the `Messages` output section for that entity.

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class Message(BaseModel):
-    id: str
+    name: str
     label: str
     timestamp: Optional[str] = None
 
