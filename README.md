@@ -69,6 +69,28 @@ data = {
 response = requests.post(url, headers=headers, data=json.dumps(data))
 ```
 
+#### Module interface
+
+The debugger can also be used as a module:
+
+```python
+import time
+import threading
+from multi_entity_debugger.debugger import MultiEntityDebugger, Message
+debugger = MultiEntityDebugger()
+def start_debugger():
+    debugger.start()
+thread = threading.Thread(target=start_debugger, daemon=True)
+thread.start()
+count = 1
+while True:
+    time.sleep(1)
+    print(f"Sending message {count}")
+    data = Message(id='entity_1', label='Entity 1', message=f'Message {count}')
+    debugger.add_message_to_queue(data)
+    count += 1
+```
+
 ## Message format
 
 Required fields:
