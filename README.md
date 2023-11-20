@@ -37,4 +37,4 @@ Optional fields:
 
  * `timestamp`: Timestamp of the message -- if not supplied, defaults to time the message was received by the debugger
 
-All fields besides `id' and `label` will be displayed in the 'Messages' output section for that entity.
+All fields besides `id` and `label` will be displayed in the `Messages` output section for that entity.
