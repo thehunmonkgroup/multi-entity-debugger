@@ -15,9 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 class Message(BaseModel):
-    agent: str
-    message: str
+    id: str
+    label: str
     timestamp: Optional[str] = None
+
+    class Config:
+        extra = "allow"
 
 
 class WebSocketManager:
@@ -72,9 +75,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.post("/send-message/")
 async def send_message(data: Message):
-    data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logger.info(f"Received message via POST: {data}")
-    manager.queue.put(data)
+    logger.debug(f"Received message via POST: {data}")
+    add_message_to_queue(data)
     return {"message": "Message received"}
 
 
@@ -82,6 +84,12 @@ async def send_message(data: Message):
 async def get():
     with open('index.html', 'r') as f:
         return HTMLResponse(f.read())
+
+
+def add_message_to_queue(data):
+    data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    logger.debug(f"Adding message to queue: {data}")
+    manager.queue.put(data)
 
 
 def run_manager():

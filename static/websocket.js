@@ -1,7 +1,6 @@
-// websocket.js
 var ws = new WebSocket("ws://localhost:8000/ws");
-var messages = {}; // Stores messages by agent
-var currentAgent = null; // Currently selected agent
+var messages = {}; // Stores messages by entity
+var currentEntity = null; // Currently selected entity
 
 function createMessageElement(msgObj) {
     var messageContainer = document.createElement("div");
@@ -9,7 +8,7 @@ function createMessageElement(msgObj) {
 
     var dl = document.createElement("dl");
     Object.entries(msgObj).forEach(([key, value]) => {
-        if (key !== 'agent') {
+        if (key !== 'id' && key !== 'label') {
             var dt = document.createElement("dt");
             dt.textContent = key;
             dl.appendChild(dt);
@@ -27,37 +26,38 @@ function createMessageElement(msgObj) {
 function displayMessages() {
     var container = document.getElementById("messages");
     container.innerHTML = '';
-    if (currentAgent && messages[currentAgent]) {
-        messages[currentAgent].forEach(msg => {
+    if (currentEntity && messages[currentEntity]) {
+        messages[currentEntity].forEach(msg => {
             var msgElement = createMessageElement(msg);
             container.appendChild(msgElement);
         });
     }
 }
 
-function createAgentLink(agent) {
-    var agentLinkDiv = document.createElement("div");
-    agentLinkDiv.classList.add("agent-link");
+function createEntityLink(id, label) {
+    var entityLinkDiv = document.createElement("div");
+    entityLinkDiv.classList.add("entity-link");
     var link = document.createElement("a");
-    link.textContent = agent;
+    link.textContent = label;
     link.href = "#";
-    agentLinkDiv.onclick = function() {
-        currentAgent = agent;
+    entityLinkDiv.onclick = function() {
+        currentEntity = id;
         displayMessages();
         return false;
     };
-    agentLinkDiv.appendChild(link);
-    return agentLinkDiv;
+    entityLinkDiv.appendChild(link);
+    return entityLinkDiv;
 }
 
-function updateAgentLinks() {
-    var agentsDiv = document.getElementById("agents");
-    Object.keys(messages).forEach(agent => {
-        if (!document.getElementById("link-" + agent)) {
-            var link = createAgentLink(agent);
-            link.id = "link-" + agent;
-            agentsDiv.appendChild(link);
-            agentsDiv.appendChild(document.createTextNode(" "));
+function updateEntityLinks() {
+    var entitiesDiv = document.getElementById("entities");
+    Object.keys(messages).forEach(id => {
+        if (!document.getElementById("link-" + id)) {
+            var data = messages[id];
+            var link = createEntityLink(id, data[0].label);
+            link.id = "link-" + id;
+            entitiesDiv.appendChild(link);
+            entitiesDiv.appendChild(document.createTextNode(" "));
         }
     });
 }
@@ -65,15 +65,15 @@ function updateAgentLinks() {
 ws.onmessage = function(event) {
     console.log(`Received message ${event.data}`);
     var data = JSON.parse(event.data);
-    if (!messages[data.agent]) {
-        messages[data.agent] = [];
+    if (!messages[data.id]) {
+        messages[data.id] = [];
     }
-    messages[data.agent].push(data);
-    updateAgentLinks();
-    if (currentAgent === null) {
-        currentAgent = data.agent;
+    messages[data.id].push(data);
+    updateEntityLinks();
+    if (currentEntity === null) {
+        currentEntity = data.id;
     }
-    if (currentAgent === data.agent) {
+    if (currentEntity === data.id) {
         displayMessages();
     }
 };
