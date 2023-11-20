@@ -1,6 +1,7 @@
 import sys
 import threading
 import logging
+import argparse
 import uvicorn
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +12,9 @@ import websockets
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
+
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_PORT = 8000
 
 logger = logging.getLogger(__name__)
 
@@ -43,76 +47,95 @@ class WebSocketManager:
             except websockets.exceptions.ConnectionClosedOK:
                 self.active_connections.remove(connection)
             except Exception as e:
-                # You can log other exceptions if needed
                 logging.error(f"Error sending message: {e}")
 
     async def run(self):
         logger.info("WebSocketManager running")
         while True:
             message = self.queue.get()
-            logger.info(f"Message in queue: {message}")
             if message is not None:
+                logger.debug(f"Broadcasting message in queue: {message}")
                 await self.broadcast(message.model_dump_json())
 
 
-logging.basicConfig(level=logging.INFO)
+class FastAPIWebSocketApp:
+    def __init__(self,
+                 host: str,
+                 port: int,
+                 custom_queue: queue.Queue = None,
+                 ):
+        self.app = FastAPI()
+        self.host = host
+        self.port = port
+        self.queue = custom_queue if custom_queue else queue.Queue()
+        self.manager = WebSocketManager(self.queue)
+        self.setup_routes()
 
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-manager = WebSocketManager(queue.Queue())
+    def setup_routes(self):
+        self.app.mount("/static", StaticFiles(directory="static"), name="static")
 
+        @self.app.websocket("/ws")
+        async def websocket_endpoint(websocket: WebSocket):
+            logger.debug(f"New WebSocket connection: {websocket}")
+            await self.manager.connect(websocket)
+            try:
+                while True:
+                    await asyncio.sleep(1)
+            except Exception as e:
+                logging.error(f"Error in WebSocket: {e}")
+            finally:
+                logger.debug(f"Closing WebSocket connection: {websocket}")
+                self.manager.disconnect(websocket)
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            await asyncio.sleep(1)
-    except Exception as e:
-        logging.error(f"Error in WebSocket: {e}")
-    finally:
-        manager.disconnect(websocket)
+        @self.app.post("/send-message/")
+        async def send_message(data: Message):
+            logger.debug(f"Received message via POST: {data}")
+            self.add_message_to_queue(data)
+            return {"message": "Message received"}
 
+        @self.app.get("/")
+        async def get():
+            with open('index.html', 'r') as f:
+                return HTMLResponse(f.read())
 
-@app.post("/send-message/")
-async def send_message(data: Message):
-    logger.debug(f"Received message via POST: {data}")
-    add_message_to_queue(data)
-    return {"message": "Message received"}
+    def add_message_to_queue(self, data):
+        if data.timestamp is None:
+            data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        logger.debug(f"Adding message to queue: {data}")
+        self.manager.queue.put(data)
 
+    def run(self):
+        logging.debug("Running FastAPIWebSocketApp")
+        uvicorn.run(self.app, host=self.host, port=8000)
 
-@app.get("/")
-async def get():
-    with open('index.html', 'r') as f:
-        return HTMLResponse(f.read())
+    async def run_manager(self):
+        logging.debug("Running WebSocketManager")
+        await self.manager.run()
 
+    def start(self):
+        logging.info("Starting Multi-entity debugger")
+        manager_thread = threading.Thread(target=asyncio.run, args=(self.run_manager(),), daemon=True)
+        manager_thread.start()
 
-def add_message_to_queue(data):
-    if data.timestamp is None:
-        data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logger.debug(f"Adding message to queue: {data}")
-    manager.queue.put(data)
+        server_thread = threading.Thread(target=self.run, daemon=True)
+        server_thread.start()
 
-
-def run_manager():
-    asyncio.run(manager.run())
-
-
-def run_server():
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+        try:
+            # Keep the script running by joining the threads
+            manager_thread.join()
+            server_thread.join()
+        except KeyboardInterrupt:
+            logging.info("Caught KeyboardInterrupt, terminating threads.")
+            sys.exit()
 
 
 if __name__ == "__main__":
-    manager_thread = threading.Thread(target=run_manager, daemon=True)
-    manager_thread.start()
+    parser = argparse.ArgumentParser(description="Run the Multi-entity debugger.")
+    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help="Host for the server to listen on. (default: %(default)s)")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port for the server to listen on. (default: %(default)s)")
+    parser.add_argument("-d", "--debug", action="store_true", help="Run the server in debug mode. (default: %(default)s)")
+    args = parser.parse_args()
 
-    server_thread = threading.Thread(target=run_server, daemon=True)
-    server_thread.start()
-
-    try:
-        # Keep the script running by joining the threads
-        manager_thread.join()
-        server_thread.join()
-    except KeyboardInterrupt:
-        print("Caught KeyboardInterrupt, terminating threads.")
-        sys.exit()
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+    fastapi_app = FastAPIWebSocketApp(host=args.host, port=args.port)
+    fastapi_app.start()
