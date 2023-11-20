@@ -1,3 +1,4 @@
+import sys
 import threading
 import logging
 import uvicorn
@@ -87,7 +88,8 @@ async def get():
 
 
 def add_message_to_queue(data):
-    data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if data.timestamp is None:
+        data.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.debug(f"Adding message to queue: {data}")
     manager.queue.put(data)
 
@@ -101,12 +103,16 @@ def run_server():
 
 
 if __name__ == "__main__":
-    manager_thread = threading.Thread(target=run_manager)
+    manager_thread = threading.Thread(target=run_manager, daemon=True)
     manager_thread.start()
 
-    server_thread = threading.Thread(target=run_server)
+    server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
 
-    # Keep the script running by joining the threads
-    manager_thread.join()
-    server_thread.join()
+    try:
+        # Keep the script running by joining the threads
+        manager_thread.join()
+        server_thread.join()
+    except KeyboardInterrupt:
+        print("Caught KeyboardInterrupt, terminating threads.")
+        sys.exit()
