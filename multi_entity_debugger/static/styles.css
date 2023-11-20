@@ -1,3 +1,6 @@
+.entity-container {
+    display: inline-block;
+}
 .entity-link {
     display: inline-block;
     padding: 8px 15px;

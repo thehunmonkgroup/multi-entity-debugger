@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/4.1.2/backbone.marionette.min.js"></script>
 </head>
 <body>
-    <h1>Multi-entity debugger</h1>
     <h1>Entities</h1>
     <div id="entities"></div>
     <h1>Messages</h1>
@@ -25,7 +24,7 @@
         <div class="message-container">
             <dl>
                 <% _.each(message, function(value, key) {
-                    if (key !== 'name' && key !== 'label') { %>
+                    if (!['id', 'name', 'label'].includes(key)) { %>
                         <dt><%- key %></dt>
                         <dd><%- value %></dd>
                     <% }

@@ -20,6 +20,7 @@ MyApp.on('start', function() {
 
     var EntityView = Marionette.View.extend({
         tagName: 'div',
+        className: 'entity-container',
         template: _.template(document.getElementById("entity-template").innerHTML),
         events: {
             'click a': 'entityClicked'
@@ -32,11 +33,15 @@ MyApp.on('start', function() {
     });
 
     var EntitiesView = Marionette.CollectionView.extend({
-        childView: EntityView
+        childView: EntityView,
+        emptyView: Marionette.View.extend({
+          template: _.template('No entities yet.')
+        }),
     });
 
     var MessageView = Marionette.View.extend({
         tagName: 'div',
+        className: 'message-container',
         template: _.template(document.getElementById("message-template").innerHTML),
         templateContext: function() {
             return {
@@ -49,7 +54,10 @@ MyApp.on('start', function() {
     });
 
     var MessagesView = Marionette.CollectionView.extend({
-        childView: MessageView
+        childView: MessageView,
+        emptyView: Marionette.View.extend({
+          template: _.template('No messages yet.')
+        }),
     });
 
     var entitiesView = new EntitiesView({
@@ -75,7 +83,6 @@ MyApp.on('start', function() {
         if (!messages[data.name]) {
             messages[data.name] = [];
         }
-        var random_id = ;
         data.id = getRandomId();
         var messageModel = new Backbone.Model(data);
         messages[data.name].push(messageModel);
