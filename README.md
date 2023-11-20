@@ -26,6 +26,20 @@ Command line help:
 multi-entity-debugger -h
 ```
 
+### Stop the server
+
+Hit `Ctrl+c`.
+
+### View messages in the browser
+
+Visit [http://127.0.0.1:8000](http://127.0.0.1:8000) *(default, can be customized)*.
+
+When a message is added for a new entity, a link will appear for that entity. Clicking the link will display all messages in order for that entity.
+
+New messages are added dynamically to existing entities.
+
+*NOTE: The interface does not save messages between browser reloads -- a reload of the browser will reset all displayed entities/messages.*
+
 ### Add messages for an entity
 
 #### POST interface
