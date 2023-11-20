@@ -59,10 +59,10 @@ class WebSocketManager:
                 await self.broadcast(message.model_dump_json())
 
 
-class FastAPIWebSocketApp:
+class MultiEntityDebugger:
     def __init__(self,
-                 host: str,
-                 port: int,
+                 host: str = DEFAULT_HOST,
+                 port: int = DEFAULT_PORT,
                  custom_queue: queue.Queue = None,
                  ):
         self.app = FastAPI()
@@ -112,7 +112,7 @@ class FastAPIWebSocketApp:
         self.manager.queue.put(data)
 
     def run(self):
-        logging.debug("Running FastAPIWebSocketApp")
+        logging.debug("Running MultiEntityDebugger")
         uvicorn.run(self.app, host=self.host, port=8000)
 
     async def run_manager(self):
@@ -144,8 +144,8 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
-    fastapi_app = FastAPIWebSocketApp(host=args.host, port=args.port)
-    fastapi_app.start()
+    debugger = MultiEntityDebugger(host=args.host, port=args.port)
+    debugger.start()
 
 
 if __name__ == "__main__":

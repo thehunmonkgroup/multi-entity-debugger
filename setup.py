@@ -35,7 +35,7 @@ setup(
     python_requires=">=3.9",
     entry_points={
         "console_scripts": [
-            "multi-entity-debugger = multi_entity_debugger.main:main",
+            "multi-entity-debugger = multi_entity_debugger.debugger:main",
         ],
     },
     scripts=[],
