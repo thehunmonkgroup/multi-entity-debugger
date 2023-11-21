@@ -29,7 +29,7 @@ MyApp.on('start', function() {
         className: 'entity-container',
         template: _.template(document.getElementById("entity-template").innerHTML),
         events: {
-            'click a': 'entityClicked'
+            'click': 'entityClicked'
         },
         entityClicked: function(e) {
             e.preventDefault();
