@@ -11,12 +11,18 @@ var MainLayout = Marionette.View.extend({
 MyApp.on('start', function() {
     var mainLayout = new MainLayout();
     var ws = new WebSocket("ws://localhost:8000/ws");
+    var entities = {}; // Stores entity data.
     var messages = {}; // Stores messages by entity
     var currentEntity = null; // Currently selected entity
+    var messagesHeader = $('#messages-header');
 
     var getRandomId = function() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     };
+
+    var updateHeaders = function(entityName) {
+        messagesHeader.text(`Messages for ${entityName}`);
+    }
 
     var EntityView = Marionette.View.extend({
         tagName: 'div',
@@ -75,11 +81,18 @@ MyApp.on('start', function() {
         currentEntity = entityId;
         var entityMessages = messages[entityId] || [];
         messagesView.collection.reset(entityMessages);
+        updateHeaders(entities[entityId].label);
     });
 
     ws.onmessage = function(event) {
         console.log(`Received message ${event.data}`);
         var data = JSON.parse(event.data);
+        if (!entities[data.name]) {
+            entities[data.name] = {
+                name: data.name,
+                label: data.label,
+            };
+        }
         if (!messages[data.name]) {
             messages[data.name] = [];
         }
