@@ -58,17 +58,23 @@ Via Python requests:
 
 ```python
 import requests
-import json
-url = "http://localhost:8000/send-message/"
-headers = {
-    "Content-Type": "application/json"
-}
-data = {
-    "name": "agent_1",
-    "label": "Agent 1",
-    "message": "hello world"
-}
-response = requests.post(url, headers=headers, data=json.dumps(data))
+DEBUG_ENDPOINT = "http://localhost:8000/send-message/"
+# Entity is some class you've defined elsewhere.
+def send_message(entity: Entity, message: str, **kwargs):
+    data = {
+        "name": entity.id,
+        "label": entity.name,
+        "message": message,
+    }
+    # Arbitrary args will be included in the message data.
+    data.update(kwargs)
+    try:
+        requests.post(DEBUG_ENDPOINT, json=data)
+    except requests.exceptions.RequestException as e:
+        # Allows POST to silently fail if the debugger is not running.
+        pass
+
+send_message(some_entity, "some message", extra_attribute="value")
 ```
 
 #### Module interface
