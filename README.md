@@ -9,6 +9,8 @@ Simple UI for displaying/updating data from multiple entities in a web browser.
 Install package:
 
 ```sh
+git clone https://github.com/thehunmonkgroup/multi-entity-debugger.git
+cd multi-entity-debugger
 pip install -e .
 ```
 
