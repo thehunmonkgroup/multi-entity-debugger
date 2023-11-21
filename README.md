@@ -1,8 +1,15 @@
 # Multi-entity debugger
 
-Simple UI for displaying/updating data from multiple entities in a web browser.
+Simple web browser UI for displaying/updating data from multiple entities.
 
 <img src="https://github.com/thehunmonkgroup/multi-entity-debugger/assets/43772/553f564a-3b7e-40d9-8399-fad65ac24853" alt="Interface" align="right" />
+
+## Features
+
+* Groups messages by entity *(an entity can be any sensible unit)*
+* Lists messages received for each entity in chronological order
+* Single click switching between different entity message lists
+* Simple mechanisms for sending message data to the debugger
 
 ## Installation
 
