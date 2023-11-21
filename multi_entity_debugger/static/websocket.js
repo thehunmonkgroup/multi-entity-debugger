@@ -66,8 +66,14 @@ MyApp.on('start', function() {
         }),
     });
 
+    var Entities = Backbone.Collection.extend({
+      comparator: function(model) {
+        return model.get('label');
+      }
+    });
+
     var entitiesView = new EntitiesView({
-        collection: new Backbone.Collection()
+        collection: new Entities(),
     });
 
     var messagesView = new MessagesView({
