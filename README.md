@@ -8,7 +8,9 @@ Simple web browser UI for displaying/updating data from multiple entities.
 
 * Groups messages by entity *(an entity can be any sensible unit)*
 * Lists messages received for each entity in chronological order
-* Single click switching between different entity message lists
+* Easy navigation between entities
+    * Single click
+    * Keyboard shortcuts
 * Simple mechanisms for sending message data to the debugger
 
 ## Installation
@@ -51,9 +53,11 @@ Hit `Ctrl+c`.
 
 Visit [http://127.0.0.1:8000](http://127.0.0.1:8000) *(default, can be customized)*.
 
-When a message is added for a new entity, a link will appear for that entity. Clicking the link will display all messages in order for that entity.
+When a message is added for a new entity, a link will appear for that entity.
 
 New messages are added dynamically to existing entities.
+
+See [Navigation](#navigation) for how to quickly view information.
 
 *NOTE: The interface does not save messages between browser reloads -- a reload of the browser will reset all displayed entities/messages.*
 
@@ -127,3 +131,13 @@ Optional fields:
  * Any other key/value pairs
 
 All fields besides `id`/`name`/`label` will be displayed in the `Messages` output section for that entity.
+
+## Navigation
+
+Clicking on an entity will show the message list for the entity, in chronological order.
+
+`Up Arrow` / `Down Arrow` and `Page Up` / `Page Down` can be used for scrolling the message list.
+
+`Right Arrow` / `Tab` will switch to the next entity, `Left Arrow` / `Shift+Tab` will switch to the previous entity.
+
+Number keys `1-9` can be used to navigate directly to an entity in the list.

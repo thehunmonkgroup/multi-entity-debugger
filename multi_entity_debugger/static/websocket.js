@@ -11,25 +11,74 @@ var MainLayout = Marionette.View.extend({
 MyApp.on('start', function() {
     var mainLayout = new MainLayout();
     var ws = new WebSocket("ws://localhost:8000/ws");
-    var entities = {}; // Stores entity data.
     var messages = {}; // Stores messages by entity
     var currentEntity = null; // Currently selected entity
     var messagesHeader = $('#messages-header');
+
+    var activateKeyHandlers = function() {
+        $(document).on('keyup', function(e) {
+          var newEntity;
+          var collection = entitiesView.collection;
+          var activeEntity = collection.findWhere({active: true});
+          var currentIndex = collection.indexOf(activeEntity ? activeEntity : 0);
+          if (e.which === 39 || (e.which === 9 && !e.shiftKey)) { // Right arrow, Tab
+            // Get next model, loop if at end
+            var newEntity = collection.at(currentIndex + 1) || collection.at(0);
+          } else if (e.which === 37 || (e.which === 9 && e.shiftKey)) { // Left arrow, Shift+Tab
+            // Get previous model, loop if at beginning
+            var newEntity = collection.at(currentIndex - 1) || collection.last();
+          }
+          // Number keys
+          if (e.which >= 49 && e.which <= 57) {
+            var index = e.which - 49;
+            if ((collection.length > index) && currentIndex !== index) {
+              newEntity = collection.at(index);
+            }
+          }
+          if (newEntity) {
+            MyApp.trigger('entity:selected', newEntity.id);
+          }
+
+        });
+    }
 
     var getRandomId = function() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     };
 
-    var updateHeaders = function(entityName) {
-        messagesHeader.text(`Messages for ${entityName}`);
+    var updateEntityLinks = function(entity) {
+        entitiesView.collection.each(function(model) {
+            model.set({active: model.id == entity.id});
+        });
+    }
+
+    var updateHeaders = function(entity) {
+        var label = entity ? entity.get('label') : 'Unknown';
+        messagesHeader.text(`Messages for ${label}`);
     }
 
     var EntityView = Marionette.View.extend({
         tagName: 'div',
         className: 'entity-container',
         template: _.template(document.getElementById("entity-template").innerHTML),
+        ui: {
+            link: '.entity-link'
+        },
         events: {
-            'click': 'entityClicked'
+            'click': 'entityClicked',
+        },
+        modelEvents: {
+            'change:active': function() {
+                this.render();
+            }
+        },
+        onRender: function() {
+            if (this.model.get('active')) {
+                this.ui.link.addClass('entity-link-active');
+            }
+            else {
+                this.ui.link.removeClass('entity-link-active');
+            }
         },
         entityClicked: function(e) {
             e.preventDefault();
@@ -53,9 +102,6 @@ MyApp.on('start', function() {
             return {
                 message: this.model.toJSON()
             };
-        },
-        onRender: function() {
-            console.log('MessageView rendered', this.model);
         },
     });
 
@@ -83,30 +129,28 @@ MyApp.on('start', function() {
     mainLayout.showChildView('entities', entitiesView);
     mainLayout.showChildView('messages', messagesView);
 
+    activateKeyHandlers();
+
     MyApp.on('entity:selected', function(entityId) {
         currentEntity = entityId;
         var entityMessages = messages[entityId] || [];
         messagesView.collection.reset(entityMessages);
-        updateHeaders(entities[entityId].label);
+        var entity = entitiesView.collection.get(entityId);
+        updateEntityLinks(entity);
+        updateHeaders(entity);
     });
 
     ws.onmessage = function(event) {
         console.log(`Received message ${event.data}`);
         var data = JSON.parse(event.data);
-        if (!entities[data.name]) {
-            entities[data.name] = {
-                name: data.name,
-                label: data.label,
-            };
-        }
         if (!messages[data.name]) {
             messages[data.name] = [];
         }
         data.id = getRandomId();
         var messageModel = new Backbone.Model(data);
         messages[data.name].push(messageModel);
-        if (!entitiesView.collection.findWhere({ id: data.name })) {
-            entitiesView.collection.add(new Backbone.Model({ id: data.name, name: data.name, label: data.label }));
+        if (!entitiesView.collection.get(data.name)) {
+            entitiesView.collection.add(new Backbone.Model({ id: data.name, name: data.name, label: data.label, active: currentEntity === null }));
         }
         if (currentEntity === null) {
             currentEntity = data.name;
