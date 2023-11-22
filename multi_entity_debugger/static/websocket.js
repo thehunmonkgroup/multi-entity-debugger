@@ -1,14 +1,14 @@
 var MyApp = new Marionette.Application();
 
-var MainLayout = Marionette.View.extend({
-  el: 'body', // Bind to the existing body element
-  regions: {
-    entities: '#entities',
-    messages: '#messages'
-  }
-});
-
 MyApp.on('start', function() {
+    var MainLayout = Marionette.View.extend({
+      el: 'body', // Bind to the existing body element
+      regions: {
+        entities: '#entities-region',
+        messages: '#messages-region'
+      }
+    });
+
     var mainLayout = new MainLayout();
     var ws = new WebSocket("ws://localhost:8000/ws");
     var messages = {}; // Stores messages by entity
@@ -46,17 +46,6 @@ MyApp.on('start', function() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     };
 
-    var updateEntityLinks = function(entity) {
-        entitiesView.collection.each(function(model) {
-            model.set({active: model.id == entity.id});
-        });
-    }
-
-    var updateHeaders = function(entity) {
-        var label = entity ? entity.get('label') : 'Unknown';
-        messagesHeader.text(`Messages for ${label}`);
-    }
-
     var EntityView = Marionette.View.extend({
         tagName: 'div',
         className: 'entity-container',
@@ -88,10 +77,24 @@ MyApp.on('start', function() {
     });
 
     var EntitiesView = Marionette.CollectionView.extend({
+        initialize: function() {
+          this.listenTo(this.collection, 'change:active', this.onActiveChange);
+        },
+        template: _.template(document.getElementById("entities-template").innerHTML),
+        childViewContainer: '#entities',
         childView: EntityView,
         emptyView: Marionette.View.extend({
-          template: _.template('No entities yet.')
+          template: _.template('<em>No entities yet</em>')
         }),
+        onActiveChange: function(changedModel, isActive) {
+          if (isActive) {
+            this.collection.each(function(model) {
+              if (model !== changedModel) {
+                model.set('active', false);
+              }
+            });
+          }
+        },
     });
 
     var MessageView = Marionette.View.extend({
@@ -106,10 +109,21 @@ MyApp.on('start', function() {
     });
 
     var MessagesView = Marionette.CollectionView.extend({
+        initialize: function() {
+            this.listenTo(this.collection, 'reset', this.onCollectionReset);
+        },
+        template: _.template(document.getElementById("messages-template").innerHTML),
+        ui: {
+            header: '#messages-header',
+        },
+        childViewContainer: '#messages',
         childView: MessageView,
-        emptyView: Marionette.View.extend({
-          template: _.template('No messages yet.')
-        }),
+        onCollectionReset: function() {
+            var firstMessage = this.collection.at(0);
+            if (firstMessage) {
+                this.ui.header.text(`Messages for ${firstMessage.get('label')}`);
+            }
+        },
     });
 
     var Entities = Backbone.Collection.extend({
@@ -136,8 +150,7 @@ MyApp.on('start', function() {
         var entityMessages = messages[entityId] || [];
         messagesView.collection.reset(entityMessages);
         var entity = entitiesView.collection.get(entityId);
-        updateEntityLinks(entity);
-        updateHeaders(entity);
+        entity.set('active', true);
     });
 
     ws.onmessage = function(event) {

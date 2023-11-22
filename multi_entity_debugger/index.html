@@ -9,12 +9,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/4.1.2/backbone.marionette.min.js"></script>
 </head>
 <body>
-    <h1 id="entities-header">Entities</h1>
-    <div id="entities"></div>
-    <h1 id="messages-header">Messages</h1>
-    <div id="messages"></div>
+    <div id="entities-region"></div>
+    <div id="messages-region"></div>
 
     <!-- Templates -->
+    <script type="text/template" id="entities-template">
+        <h1 id="entities-header">Entities</h1>
+        <div id="entities"></div>
+    </script>
+    <script type="text/template" id="messages-template">
+        <h1 id="messages-header"></h1>
+        <div id="messages"></div>
+    </script>
     <script type="text/template" id="entity-template">
         <div class="entity-link" id="link-<%- name %>">
             <a href="#" data-id="<%- name %>"><%- label %></a>
