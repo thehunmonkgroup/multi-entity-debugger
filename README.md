@@ -2,7 +2,7 @@
 
 Simple web browser UI for displaying/updating data from multiple entities.
 
-<img src="https://github.com/thehunmonkgroup/multi-entity-debugger/assets/43772/553f564a-3b7e-40d9-8399-fad65ac24853" alt="Interface" align="right" />
+<img src="https://github.com/thehunmonkgroup/multi-entity-debugger/assets/43772/553f564a-3b7e-40d9-8399-fad65ac24853" alt="Interface" />
 
 ## Features
 
