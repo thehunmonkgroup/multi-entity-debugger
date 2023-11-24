@@ -61,6 +61,16 @@ See [Navigation](#navigation) for how to quickly view information.
 
 *NOTE: The interface does not save messages between browser reloads -- a reload of the browser will reset all displayed entities/messages.*
 
+#### Navigation
+
+Clicking on an entity will show the message list for the entity, in chronological order.
+
+`Up Arrow` / `Down Arrow` and `Page Up` / `Page Down` can be used for scrolling the message list.
+
+`Right Arrow` / `Tab` will switch to the next entity, `Left Arrow` / `Shift+Tab` will switch to the previous entity.
+
+Number keys `1-9` can be used to navigate directly to an entity in the list.
+
 ### Add messages for an entity
 
 #### POST interface
@@ -132,12 +142,39 @@ Optional fields:
 
 All fields besides `id`/`name`/`label` will be displayed in the `Messages` output section for that entity.
 
-## Navigation
 
-Clicking on an entity will show the message list for the entity, in chronological order.
+## Logger integration
 
-`Up Arrow` / `Down Arrow` and `Page Up` / `Page Down` can be used for scrolling the message list.
+A custom logging handler is provided for easy integration with existing solutions that use Python's `logging` module:
 
-`Right Arrow` / `Tab` will switch to the next entity, `Left Arrow` / `Shift+Tab` will switch to the previous entity.
+```python
+import logging
+from multi_entity_debugger.logger_handler import HTTPDebuggerHandler
 
-Number keys `1-9` can be used to navigate directly to an entity in the list.
+LOG_FORMAT = "%(name)s - %(levelname)s - %(message)s"
+
+class DebugLogger:
+    def __new__(cls, name):
+        logger = logging.getLogger(name)
+        # Prevent duplicate loggers.
+        if logger.hasHandlers():
+            return logger
+        logger.setLevel(logging.DEBUG)
+        # Log to console.
+        log_console_handler = logging.StreamHandler()
+        log_console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        log_console_handler.setLevel(logging.DEBUG)
+        logger.addHandler(log_console_handler)
+        # Also send log messages to the Multi-entity debugger
+        http_debugger_handler = HTTPDebuggerHandler()
+        http_debugger_handler.setLevel(logging.DEBUG)
+        logger.addHandler(http_debugger_handler)
+        return logger
+
+logger = DebugLogger('example-logger')
+# Includes  log_level, message, timestamp.
+log.info("test message")
+# Any key/value pairs passed in the 'extra' argument to the logger will be included
+# in the output to the debugger.
+log.info("test message with extra data", extra={'thing_1': 'a thing', 'thing_2': 'another thing'})
+```
