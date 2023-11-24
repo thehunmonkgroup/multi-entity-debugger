@@ -8,12 +8,16 @@ LOG_DEFAULT_ATTRS = set(vars(DUMMY_LOG_RECORD).keys())
 
 
 class HTTPDebuggerHandler(Handler):
-    def __init__(self, url: str = DEFAULT_DEBUG_ENDPOINT):
+    def __init__(self, entity_name, entity_label, url: str = DEFAULT_DEBUG_ENDPOINT):
         super().__init__()
+        self.entity_name = entity_name
+        self.entity_label = entity_label
         self.url = url
 
     def emit(self, record):
         data = {
+            'name': self.entity_name,
+            'label': self.entity_label,
             'log_level': record.levelname,
             'message': record.getMessage(),
         }

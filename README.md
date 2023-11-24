@@ -157,8 +157,9 @@ from multi_entity_debugger.logger_handler import HTTPDebuggerHandler
 LOG_FORMAT = "%(name)s - %(levelname)s - %(message)s"
 
 class DebugLogger:
-    def __new__(cls, name):
-        logger = logging.getLogger(name)
+    def __new__(cls, entity_name, entity_label=None):
+        entity_label = entity_label or entity_name
+        logger = logging.getLogger(entity_name)
         # Prevent duplicate loggers.
         if logger.hasHandlers():
             return logger
@@ -169,12 +170,12 @@ class DebugLogger:
         log_console_handler.setLevel(logging.DEBUG)
         logger.addHandler(log_console_handler)
         # Also send log messages to the Multi-entity debugger
-        http_debugger_handler = HTTPDebuggerHandler()
+        http_debugger_handler = HTTPDebuggerHandler(entity_name, entity_label)
         http_debugger_handler.setLevel(logging.DEBUG)
         logger.addHandler(http_debugger_handler)
         return logger
 
-logger = DebugLogger('example-logger')
+logger = DebugLogger('entity-1', 'Entity 1')
 # Includes  log_level, message, timestamp.
 log.info("test message")
 # Any key/value pairs passed in the 'extra' argument to the logger will be included
