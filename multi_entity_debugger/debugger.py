@@ -1,5 +1,6 @@
 import os
 import sys
+import uuid
 import threading
 import logging
 import argparse
@@ -7,6 +8,7 @@ import uvicorn
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from starlette.websockets import WebSocketDisconnect
 import asyncio
 import queue
 import websockets
@@ -31,22 +33,30 @@ class Message(BaseModel):
 
 class WebSocketManager:
     def __init__(self, queue):
-        self.active_connections = []
+        self.active_connections = {}
         self.queue = queue
 
     async def connect(self, websocket: WebSocket):
+        connection_id = str(uuid.uuid4())
+        self.active_connections[connection_id] = websocket
+        logger.debug(f"WebSocket connected: {connection_id}")
         await websocket.accept()
-        self.active_connections.append(websocket)
+        return connection_id
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    def disconnect(self, connection_id: str):
+        websocket = self.active_connections.get(connection_id)
+        if websocket:
+            logger.debug(f"WebSocket disconnected: {connection_id}")
+            self.active_connections.pop(connection_id)
 
     async def broadcast(self, message: str):
-        for connection in self.active_connections:
+        for id, connection in self.active_connections.items():
             try:
+                logger.debug(f"Sending message to connection: {id}")
                 await connection.send_text(message)
             except websockets.exceptions.ConnectionClosedOK:
-                self.active_connections.remove(connection)
+                logger.debug(f"Connection closed, no message sent: {id}")
+                self.disconnect(id)
             except Exception as e:
                 logging.error(f"Error sending message: {e}")
 
@@ -83,16 +93,19 @@ class MultiEntityDebugger:
 
         @self.app.websocket("/ws")
         async def websocket_endpoint(websocket: WebSocket):
-            logger.debug(f"New WebSocket connection: {websocket}")
-            await self.manager.connect(websocket)
+            logger.debug("New WebSocket connection")
+            connection_id = await self.manager.connect(websocket)
             try:
                 while True:
-                    await asyncio.sleep(1)
+                    await websocket.receive_text()
+            except WebSocketDisconnect:
+                logger.debug(f"WebSocket disconnected: {websocket}")
+                self.manager.disconnect(connection_id)
             except Exception as e:
                 logging.error(f"Error in WebSocket: {e}")
             finally:
-                logger.debug(f"Closing WebSocket connection: {websocket}")
-                self.manager.disconnect(websocket)
+                logger.debug(f"Closing WebSocket connection: {connection_id}")
+                self.manager.disconnect(connection_id)
 
         @self.app.post("/send-message/")
         async def send_message(data: Message):
