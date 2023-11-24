@@ -4,6 +4,7 @@ Simple web browser UI for displaying/updating data from multiple entities.
 
 <img src="https://github.com/thehunmonkgroup/multi-entity-debugger/assets/43772/553f564a-3b7e-40d9-8399-fad65ac24853" alt="Interface" />
 
+
 ## Features
 
 * Groups messages by entity *(an entity can be any sensible unit)*
@@ -12,6 +13,7 @@ Simple web browser UI for displaying/updating data from multiple entities.
     * Single click
     * Keyboard shortcuts
 * Simple mechanisms for sending message data to the debugger
+
 
 ## Installation
 
@@ -28,6 +30,7 @@ git clone https://github.com/thehunmonkgroup/multi-entity-debugger.git
 cd multi-entity-debugger
 pip install -e .
 ```
+
 
 ## Usage
 
@@ -70,6 +73,20 @@ Clicking on an entity will show the message list for the entity, in chronologica
 `Right Arrow` / `Tab` will switch to the next entity, `Left Arrow` / `Shift+Tab` will switch to the previous entity.
 
 Number keys `1-9` can be used to navigate directly to an entity in the list.
+
+### Message format
+
+Required fields:
+
+ * `name`: The machine name of the entity
+ * `label`: A human-readable label for the entity
+
+Optional fields:
+
+ * `timestamp`: Timestamp of the message -- if not supplied, defaults to time the message was received by the debugger
+ * Any other key/value pairs
+
+All fields besides `id`/`name`/`label` will be displayed in the `Messages` output section for that entity.
 
 ### Add messages for an entity
 
@@ -127,20 +144,6 @@ while True:
     debugger.add_message_to_queue(data)
     count += 1
 ```
-
-## Message format
-
-Required fields:
-
- * `name`: The machine name of the entity
- * `label`: A human-readable label for the entity
-
-Optional fields:
-
- * `timestamp`: Timestamp of the message -- if not supplied, defaults to time the message was received by the debugger
- * Any other key/value pairs
-
-All fields besides `id`/`name`/`label` will be displayed in the `Messages` output section for that entity.
 
 
 ## Logger integration
