@@ -31,6 +31,11 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Debuggers",
+        "Topic :: Utilities",
+        "Framework :: FastAPI",
     ],
     python_requires=">=3.9",
     entry_points={
