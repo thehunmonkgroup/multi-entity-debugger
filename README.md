@@ -4,16 +4,14 @@ Simple web browser UI for displaying/updating data from multiple entities.
 
 <img src="https://github.com/thehunmonkgroup/multi-entity-debugger/assets/43772/553f564a-3b7e-40d9-8399-fad65ac24853" alt="Interface" />
 
-
 ## Features
 
-* Groups messages by entity *(an entity can be any sensible unit)*
-* Lists messages received for each entity in chronological order
-* Easy navigation between entities
-    * Single click
-    * Keyboard shortcuts
-* Simple mechanisms for sending message data to the debugger
-
+* Groups messages by entity for easy organization and reference
+* Displays messages for each entity in chronological order for clear historical context
+* Facilitates quick navigation between entities with:
+    * Single-click access
+    * Keyboard shortcuts for power users
+* Provides a straightforward interface for sending messages to the debugger
 
 ## Installation
 
@@ -31,124 +29,123 @@ cd multi-entity-debugger
 pip install -e .
 ```
 
-
 ## Usage
 
-### Run the server
+### Starting and Stopping the Server
 
-Start with default options:
+To start the server with default options:
 
 ```sh
 multi-entity-debugger
 ```
 
-Command line help:
+For command line options and help:
 
 ```sh
-multi-entity-debugger -h
+multi-entity-debugger --help
 ```
 
-### Stop the server
+To stop the server, use `Ctrl+C`.
 
-Hit `Ctrl+c`.
+### Viewing Messages in the Browser
 
-### View messages in the browser
+Access the debugger interface at [http://127.0.0.1:8000](http://127.0.0.1:8000) by default. This can be customized.
 
-Visit [http://127.0.0.1:8000](http://127.0.0.1:8000) *(default, can be customized)*.
+When messages from a new entity are received, a link for that entity will be displayed.
 
-When a message is added for a new entity, a link will appear for that entity.
+Messages for existing entities are dynamically updated.
 
-New messages are added dynamically to existing entities.
-
-See [Navigation](#navigation) for how to quickly view information.
-
-*NOTE: The interface does not save messages between browser reloads -- a reload of the browser will reset all displayed entities/messages.*
+*Note: The interface does not persist messages between browser sessions. Reloading the browser will clear all displayed entities and messages.*
 
 #### Navigation
 
-Clicking on an entity will show the message list for the entity, in chronological order.
+- Click on an entity to view its messages in chronological order.
+- Use `Up Arrow` / `Down Arrow` and `Page Up` / `Page Down` to scroll through messages.
+- Navigate between entities using `Right Arrow` / `Tab` for the next entity and `Left Arrow` / `Shift+Tab` for the previous one.
+- Directly jump to an entity using number keys `1-9`.
 
-`Up Arrow` / `Down Arrow` and `Page Up` / `Page Down` can be used for scrolling the message list.
+### Message Format
 
-`Right Arrow` / `Tab` will switch to the next entity, `Left Arrow` / `Shift+Tab` will switch to the previous entity.
+Messages must include:
 
-Number keys `1-9` can be used to navigate directly to an entity in the list.
+ * `name`: The unique identifier for the entity
+ * `label`: A human-friendly name for the entity
 
-### Message format
+Optional:
 
-Required fields:
+ * `timestamp`: The time the message was sent. If omitted, the time of receipt is used.
+ * Additional key/value pairs for extra data
 
- * `name`: The machine name of the entity
- * `label`: A human-readable label for the entity
+Fields other than `id`/`name`/`label` will appear in the `Messages` section for the entity.
 
-Optional fields:
+### Sending Messages to the Debugger
 
- * `timestamp`: Timestamp of the message -- if not supplied, defaults to time the message was received by the debugger
- * Any other key/value pairs
+#### Via HTTP POST
 
-All fields besides `id`/`name`/`label` will be displayed in the `Messages` output section for that entity.
+Send a JSON payload to `http://localhost:8000/send-message/` using tools like cURL or HTTP libraries in various programming languages.
 
-### Add messages for an entity
-
-#### POST interface
-
-`POST` JSON to `http://localhost:8000/send-message/`
-
-Via cURL:
+Example with cURL:
 
 ```sh
 curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"name":"agent_1", "label":"Agent 1", "message":"hello world"}'
 ```
 
-Via Python requests:
+Example with Python requests:
 
 ```python
 import requests
 DEBUG_ENDPOINT = "http://localhost:8000/send-message/"
-# Entity is some class you've defined elsewhere.
+# Assume 'Entity' is a class defined in your application.
 def send_message(entity: Entity, message: str, **kwargs):
     data = {
         "name": entity.id,
         "label": entity.name,
         "message": message,
     }
-    # Arbitrary args will be included in the message data.
-    data.update(kwargs)
+    data.update(kwargs)  # Include any additional data.
     try:
         requests.post(DEBUG_ENDPOINT, json=data)
     except requests.exceptions.RequestException as e:
-        # Allows POST to silently fail if the debugger is not running.
+        # If the debugger isn't running, ignore the POST failure.
         pass
 
 send_message(some_entity, "some message", extra_attribute="value")
 ```
 
-#### Module interface
+#### As a Python Module
 
-The debugger can also be used as a module:
+The debugger can be directly used in your Python code as a module.
+
+Example:
 
 ```python
 import time
 import threading
 from multi_entity_debugger.debugger import MultiEntityDebugger, Message
+
 debugger = MultiEntityDebugger()
+
 def start_debugger():
     debugger.start()
-thread = threading.Thread(target=start_debugger, daemon=True)
-thread.start()
-count = 1
+
+t = threading.Thread(target=start_debugger, daemon=True)
+t.start()
+
+# Example loop to send messages
+message_count = 1
 while True:
     time.sleep(1)
-    print(f"Sending message {count}")
-    data = Message(name='entity_1', label='Entity 1', message=f'Message {count}')
-    debugger.add_message_to_queue(data)
-    count += 1
+    print(f"Sending message {message_count}")
+    message_data = Message(name='entity_1', label='Entity 1', message=f'Message {message_count}')
+    debugger.add_message_to_queue(message_data)
+    message_count += 1
 ```
 
+## Logger Integration
 
-## Logger integration
+Integrate with Python's `logging` module using the provided custom logging handler.
 
-A custom logging handler is provided for easy integration with existing solutions that use Python's `logging` module:
+Example:
 
 ```python
 import logging
@@ -160,25 +157,20 @@ class DebugLogger:
     def __new__(cls, entity_name, entity_label=None):
         entity_label = entity_label or entity_name
         logger = logging.getLogger(entity_name)
-        # Prevent duplicate loggers.
-        if logger.hasHandlers():
-            return logger
-        logger.setLevel(logging.DEBUG)
-        # Log to console.
-        log_console_handler = logging.StreamHandler()
-        log_console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
-        log_console_handler.setLevel(logging.DEBUG)
-        logger.addHandler(log_console_handler)
-        # Also send log messages to the Multi-entity debugger
-        http_debugger_handler = HTTPDebuggerHandler(entity_name, entity_label)
-        http_debugger_handler.setLevel(logging.DEBUG)
-        logger.addHandler(http_debugger_handler)
+        if not logger.hasHandlers():  # Check for existing handlers
+            logger.setLevel(logging.DEBUG)
+            # Console logging
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+            console_handler.setLevel(logging.DEBUG)
+            logger.addHandler(console_handler)
+            # Multi-entity debugger logging
+            debugger_handler = HTTPDebuggerHandler(entity_name, entity_label)
+            debugger_handler.setLevel(logging.DEBUG)
+            logger.addHandler(debugger_handler)
         return logger
 
 logger = DebugLogger('entity-1', 'Entity 1')
-# Includes  log_level, message, timestamp.
-log.info("test message")
-# Any key/value pairs passed in the 'extra' argument to the logger will be included
-# in the output to the debugger.
-log.info("test message with extra data", extra={'thing_1': 'a thing', 'thing_2': 'another thing'})
+logger.info("test message")  # Basic log
+logger.info("test message with extra data", extra={'key1': 'value1', 'key2': 'value2'})  # Log with extra data
 ```
