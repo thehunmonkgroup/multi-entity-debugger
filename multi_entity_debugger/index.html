@@ -3,6 +3,7 @@
 <head>
     <title>Multi-entity debugger</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.4.0/backbone-min.js"></script>
@@ -32,7 +33,7 @@
                 <% _.each(message, function(value, key) {
                     if (!['id', 'name', 'label'].includes(key)) { %>
                         <dt><%- key %></dt>
-                        <dd><%- value %></dd>
+                        <dd><% if (typeof value === 'object') { %><pre><%- JSON.stringify(value, null, 2) %></pre><% } else { %><%- value %><% } %></dd>
                     <% }
                 }); %>
             </dl>
