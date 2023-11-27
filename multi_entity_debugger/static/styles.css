@@ -15,6 +15,11 @@
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
+.entity-link-active {
+  background-color: #004385;
+  box-shadow: 0 0 10px rgba(0, 67, 128, 0.8);
+}
+
 .entity-link a, .entity-link a:hover, .entity-link a:focus, .entity-link a:visited {
     color: white;
 }
