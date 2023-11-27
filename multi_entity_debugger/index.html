@@ -29,7 +29,7 @@
     </script>
     <script type="text/template" id="message-template">
         <div class="message-container">
-            <dl>
+            <dl <% if (message.log_level) { %> class="<%- message.log_level.toLowerCase() %>" <% } %>>
                 <% _.each(message, function(value, key) {
                     if (!['id', 'name', 'label'].includes(key)) { %>
                         <dt><%- key %></dt>

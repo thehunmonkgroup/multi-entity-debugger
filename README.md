@@ -12,6 +12,7 @@ Simple web browser UI for displaying/updating data from multiple entities.
     * Single-click access
     * Keyboard shortcuts for power users
 * Provides a straightforward interface for sending messages to the debugger
+* Built-in class to easily add a custom logging handler to Python's logging framework
 
 ## Installation
 
@@ -79,6 +80,17 @@ Optional:
 Fields other than `id`/`name`/`label` will appear in the `Messages` section for the entity.
 
 ### Sending Messages to the Debugger
+
+
+#### Example messages
+
+The included [generate-example-messages.sh](generate-example-messages.sh) script will provide
+a list of example messages for two entities, and includes examples of how messages with the
+`log_level` key will be color-coded according the log level:
+
+```sh
+./generate-example-messages.sh
+```
 
 #### Via HTTP POST
 
@@ -171,6 +183,8 @@ class DebugLogger:
         return logger
 
 logger = DebugLogger('entity-1', 'Entity 1')
-logger.info("test message")  # Basic log
+logger.debug("test message")  # Basic log
 logger.info("test message with extra data", extra={'key1': 'value1', 'key2': 'value2'})  # Log with extra data
 ```
+
+When the logger handler is used, message backgrounds will be color coded according to their log level.

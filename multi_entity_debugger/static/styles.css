@@ -15,11 +15,6 @@
     transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.entity-link-active {
-  background-color: #004385;
-  box-shadow: 0 0 10px rgba(0, 67, 128, 0.8);
-}
-
 .entity-link a, .entity-link a:hover, .entity-link a:focus, .entity-link a:visited {
     color: white;
 }
@@ -42,15 +37,41 @@
 }
 
 .message-container {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .message-container dl {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+  color: #000000;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.message-container dl.debug {
+  background-color: #ebf5ee;
+  border-color: #9de19d;
+}
+
+.message-container dl.info {
+  background-color: #e9f7fe;
+  border-color: #3d9cd6;
+}
+
+.message-container dl.warning {
+  background-color: #fdf8e2;
+  border-color: #f2da66;
+}
+
+.message-container dl.error {
+  background-color: #fdeeee;
+  border-color: #f28787;
+}
+
+.message-container dl.critical {
+  background-color: #f9ebfc;
+  border-color: #c389f5;
 }
 
 .message-container dt {
@@ -61,4 +82,3 @@
     margin: 0;
     padding-left: 10px;
 }
-
