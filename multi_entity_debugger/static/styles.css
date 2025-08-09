@@ -426,53 +426,43 @@ body {
 }
 
 .message-container dl.debug {
-    background-color: var(--bg-card);
     border-color: #4a7c59;
 }
 
 .message-container dl.info {
-    background-color: var(--bg-card);
     border-color: #2e5f8a;
 }
 
 .message-container dl.warning {
-    background-color: var(--bg-card);
     border-color: #8a6914;
 }
 
 .message-container dl.error {
-    background-color: var(--bg-card);
     border-color: #8a4a4a;
 }
 
 .message-container dl.critical {
-    background-color: var(--bg-card);
     border-color: #7a4a8a;
 }
 
 body.dark-mode .message-container dl.debug {
     background-color: #1a2f1f;
-    border-color: #4a7c59;
 }
 
 body.dark-mode .message-container dl.info {
     background-color: #1a252f;
-    border-color: #2e5f8a;
 }
 
 body.dark-mode .message-container dl.warning {
     background-color: #2f2a1a;
-    border-color: #8a6914;
 }
 
 body.dark-mode .message-container dl.error {
     background-color: #2f1a1a;
-    border-color: #8a4a4a;
 }
 
 body.dark-mode .message-container dl.critical {
     background-color: #2a1a2f;
-    border-color: #7a4a8a;
 }
 
 .help-modal {
