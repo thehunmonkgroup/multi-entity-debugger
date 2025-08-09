@@ -25,6 +25,20 @@ import requests
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8000
 
+# Default values for message generation
+DEFAULT_ENTITY_COUNT = 3
+DEFAULT_MESSAGES_PER_ENTITY = 5
+DEFAULT_ENTITY_TYPE = "agent"
+DEFAULT_INTERVAL = 2.0
+DEFAULT_TIMEOUT = 5
+DEFAULT_BURST_SIZE_MIN = 2
+DEFAULT_BURST_SIZE_MAX = 5
+DEFAULT_BATCH_DELAY = 0.1
+DEFAULT_BURST_DELAY = 0.1
+DEFAULT_ACTIVITY_TEST_COUNT = 10
+DEFAULT_ACTIVITY_TEST_RATE = 0.2
+DEFAULT_SCENARIO_DELAY = 3
+
 class MessageGenerator:
     def __init__(self, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT):
         self.base_url = f"http://{host}:{port}/send-message/"
@@ -147,15 +161,15 @@ class MessageGenerator:
 
     def send_message(self, payload: dict) -> bool:
         try:
-            response = self.session.post(self.base_url, json=payload, timeout=5)
+            response = self.session.post(self.base_url, json=payload, timeout=DEFAULT_TIMEOUT)
             response.raise_for_status()
             return True
         except Exception as e:
             print(f"Failed to send message: {e}")
             return False
 
-    def send_batch(self, entity_count: int = 3, messages_per_entity: int = 5,
-                   entity_type: str = "agent", log_level: Optional[str] = None):
+    def send_batch(self, entity_count: int = DEFAULT_ENTITY_COUNT, messages_per_entity: int = DEFAULT_MESSAGES_PER_ENTITY,
+                   entity_type: str = DEFAULT_ENTITY_TYPE, log_level: Optional[str] = None):
         """Send a batch of messages across multiple entities."""
         print(f"Sending {messages_per_entity} messages to {entity_count} entities...")
         
@@ -172,10 +186,10 @@ class MessageGenerator:
                 
                 # Small delay to test activity rates
                 if messages_per_entity > 1:
-                    time.sleep(0.1)
+                    time.sleep(DEFAULT_BATCH_DELAY)
 
-    def send_continuous(self, entity_count: int = 3, interval: float = 2.0,
-                       entity_type: str = "agent", pattern: str = "random"):
+    def send_continuous(self, entity_count: int = DEFAULT_ENTITY_COUNT, interval: float = DEFAULT_INTERVAL,
+                       entity_type: str = DEFAULT_ENTITY_TYPE, pattern: str = "random"):
         """Send messages continuously to test real-time features."""
         print(f"Starting continuous mode: {entity_count} entities, {interval}s interval")
         print("Press Ctrl+C to stop")
@@ -188,11 +202,11 @@ class MessageGenerator:
                 if pattern == "burst":
                     # Send multiple messages from one entity
                     name, label = random.choice(entities)
-                    count = random.randint(2, 5)
+                    count = random.randint(DEFAULT_BURST_SIZE_MIN, DEFAULT_BURST_SIZE_MAX)
                     for _ in range(count):
                         payload = self.generate_message(name, label)
                         self.send_message(payload)
-                        time.sleep(0.1)
+                        time.sleep(DEFAULT_BURST_DELAY)
                 elif pattern == "round-robin":
                     # Cycle through entities
                     for name, label in entities:
@@ -221,8 +235,8 @@ class MessageGenerator:
         for name, test_func in scenarios:
             print(f"\n=== {name} ===")
             test_func()
-            print("Waiting 3 seconds...")
-            time.sleep(3)
+            print(f"Waiting {DEFAULT_SCENARIO_DELAY} seconds...")
+            time.sleep(DEFAULT_SCENARIO_DELAY)
 
     def test_search_functionality(self):
         """Generate messages designed to test search functionality."""
@@ -255,11 +269,11 @@ class MessageGenerator:
         name, label = "activity_test", "Activity Test Entity"
         
         # High activity burst
-        for i in range(10):
+        for i in range(DEFAULT_ACTIVITY_TEST_COUNT):
             payload = self.generate_message(name, label, "INFO")
             payload["message"] = f"High activity message {i+1}"
             self.send_message(payload)
-            time.sleep(0.2)  # 5 msgs/second
+            time.sleep(DEFAULT_ACTIVITY_TEST_RATE)
 
     def test_complex_data(self):
         """Generate messages with complex nested data structures."""
@@ -303,33 +317,33 @@ Examples:
     )
     
     parser.add_argument("--host", default=DEFAULT_HOST,
-                       help=f"Debugger host (default: {DEFAULT_HOST})")
+                       help="Debugger host (default: %(default)s)")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT,
-                       help=f"Debugger port (default: {DEFAULT_PORT})")
+                       help="Debugger port (default: %(default)s)")
     
     subparsers = parser.add_subparsers(dest="command", help="Commands")
     
     # Batch command
     batch_parser = subparsers.add_parser("batch", help="Send a batch of messages")
-    batch_parser.add_argument("--entities", type=int, default=3,
-                             help="Number of entities (default: 3)")
-    batch_parser.add_argument("--messages", type=int, default=5,
-                             help="Messages per entity (default: 5)")
-    batch_parser.add_argument("--entity-type", default="agent",
-                             help="Entity type prefix (default: agent)")
+    batch_parser.add_argument("--entities", type=int, default=DEFAULT_ENTITY_COUNT,
+                             help="Number of entities (default: %(default)s)")
+    batch_parser.add_argument("--messages", type=int, default=DEFAULT_MESSAGES_PER_ENTITY,
+                             help="Messages per entity (default: %(default)s)")
+    batch_parser.add_argument("--entity-type", default=DEFAULT_ENTITY_TYPE,
+                             help="Entity type prefix (default: %(default)s)")
     batch_parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
                              help="Specific log level (default: random)")
     
     # Continuous command
     continuous_parser = subparsers.add_parser("continuous", help="Send messages continuously")
-    continuous_parser.add_argument("--entities", type=int, default=3,
-                                  help="Number of entities (default: 3)")
-    continuous_parser.add_argument("--interval", type=float, default=2.0,
-                                  help="Interval between messages in seconds (default: 2.0)")
-    continuous_parser.add_argument("--entity-type", default="agent",
-                                  help="Entity type prefix (default: agent)")
+    continuous_parser.add_argument("--entities", type=int, default=DEFAULT_ENTITY_COUNT,
+                                  help="Number of entities (default: %(default)s)")
+    continuous_parser.add_argument("--interval", type=float, default=DEFAULT_INTERVAL,
+                                  help="Interval between messages in seconds (default: %(default)s)")
+    continuous_parser.add_argument("--entity-type", default=DEFAULT_ENTITY_TYPE,
+                                  help="Entity type prefix (default: %(default)s)")
     continuous_parser.add_argument("--pattern", choices=["random", "burst", "round-robin"],
-                                  default="random", help="Message pattern (default: random)")
+                                  default="random", help="Message pattern (default: %(default)s)")
     
     # Scenarios command
     subparsers.add_parser("scenarios", help="Run predefined test scenarios")
@@ -344,7 +358,7 @@ Examples:
     
     # Test connection
     try:
-        response = requests.get(f"http://{args.host}:{args.port}/", timeout=5)
+        response = requests.get(f"http://{args.host}:{args.port}/", timeout=DEFAULT_TIMEOUT)
         print(f"✓ Connected to debugger at {args.host}:{args.port}")
     except Exception as e:
         print(f"✗ Cannot connect to debugger at {args.host}:{args.port}: {e}")
