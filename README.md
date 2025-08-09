@@ -61,6 +61,11 @@ For command line options and help:
 multi-entity-debugger --help
 ```
 
+**Common Options:**
+- `--host HOST`: Server host (default: 127.0.0.1)
+- `--port PORT`: Server port (default: 8000)
+- `--debug`: Enable debug logging
+
 To stop the server, use `Ctrl+C`.
 
 ### Viewing Messages in the Browser
@@ -139,12 +144,17 @@ Fields other than `id`/`name`/`label` will appear in the `Messages` section for 
 
 #### Example messages
 
-The included [generate-example-messages.sh](generate-example-messages.sh) script will provide
-a list of example messages for two entities, and includes examples of how messages with the
-`log_level` key will be color-coded according the log level:
+Use the included `test_message_generator.py` script to generate test messages:
 
 ```sh
-./generate-example-messages.sh
+# Generate batch messages (3 entities, 5 messages each)
+python test_message_generator.py batch --entities 3 --messages 5
+
+# Continuous message generation for real-time testing
+python test_message_generator.py continuous --entities 2 --interval 1.0
+
+# Run predefined test scenarios (search, filter, activity tests)
+python test_message_generator.py scenarios
 ```
 
 #### Via HTTP POST
@@ -243,3 +253,57 @@ logger.info("test message with extra data", extra={'key1': 'value1', 'key2': 'va
 ```
 
 When the logger handler is used, message backgrounds will be color coded according to their log level.
+
+## Development
+
+### Testing and Development Workflow
+
+The project includes a comprehensive testing script for development and validation:
+
+#### Test Message Generator
+
+The `test_message_generator.py` script provides multiple testing modes:
+
+**Batch Testing** - Generate multiple messages at once:
+```sh
+# Generate 5 messages for 3 entities
+python test_message_generator.py batch --entities 3 --messages 5
+```
+
+**Continuous Testing** - Real-time message generation:
+```sh
+# Send messages every 1 second from 2 entities
+python test_message_generator.py continuous --entities 2 --interval 1.0
+```
+
+**Scenario Testing** - Predefined test scenarios:
+```sh
+# Run comprehensive scenarios testing search, filters, and activity features
+python test_message_generator.py scenarios
+```
+
+**Single Message Testing** - Send individual test messages:
+```sh
+curl -X POST http://localhost:8000/send-message/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"test_entity", "label":"Test Entity", "message":"hello world", "log_level":"INFO"}'
+```
+
+#### Development Workflow
+
+1. **Start the debugger** with debug logging:
+   ```sh
+   multi-entity-debugger --debug
+   ```
+
+2. **Generate test data** using the testing script:
+   ```sh
+   python test_message_generator.py scenarios
+   ```
+
+3. **Open the interface** at http://localhost:8000 to validate functionality
+
+4. **Test specific features** using targeted message generation:
+   - Search functionality: Use varied message content
+   - Log level filtering: Generate messages with different log levels
+   - Real-time updates: Use continuous mode for live testing
