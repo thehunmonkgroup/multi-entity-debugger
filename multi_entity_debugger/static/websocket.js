@@ -10,7 +10,8 @@ MyApp.on('start', function() {
     });
 
     var mainLayout = new MainLayout();
-    var ws = new WebSocket("ws://localhost:8000/ws");
+    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var ws = new WebSocket(protocol + "//" + window.location.host + "/ws");
     var messages = {}; // Stores messages by entity
     var currentEntity = null; // Currently selected entity
     var messagesHeader = $('#messages-header');
