@@ -20,6 +20,19 @@
     </script>
     <script type="text/template" id="messages-template">
         <h1 id="messages-header"></h1>
+        <div class="message-filters">
+            <input type="text" id="search-input" placeholder="Search messages..." />
+            <select id="log-level-filter">
+                <option value="">All log levels</option>
+                <option value="DEBUG">DEBUG</option>
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="ERROR">ERROR</option>
+                <option value="CRITICAL">CRITICAL</option>
+            </select>
+            <button id="clear-filters">Clear Filters</button>
+            <div class="filter-status" id="filter-status"></div>
+        </div>
         <div id="messages"></div>
     </script>
     <script type="text/template" id="entity-template">
