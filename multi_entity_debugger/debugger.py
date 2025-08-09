@@ -50,7 +50,9 @@ class WebSocketManager:
             self.active_connections.pop(connection_id)
 
     async def broadcast(self, message: str):
-        for id, connection in self.active_connections.items():
+        # Create a copy of the items to avoid modifying dict during iteration
+        connections_copy = list(self.active_connections.items())
+        for id, connection in connections_copy:
             try:
                 logger.debug(f"Sending message to connection: {id}")
                 await connection.send_text(message)
@@ -59,6 +61,7 @@ class WebSocketManager:
                 self.disconnect(id)
             except Exception as e:
                 logging.error(f"Error sending message: {e}")
+                self.disconnect(id)
 
     async def run(self):
         logger.info("WebSocketManager running")
