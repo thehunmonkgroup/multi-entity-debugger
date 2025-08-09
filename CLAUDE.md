@@ -23,15 +23,21 @@ multi-entity-debugger --host 0.0.0.0 --port 8080
 
 # Enable debug logging
 multi-entity-debugger --debug
-
-# Generate example messages for testing
-./generate-example-messages.sh
 ```
 
-### Testing the API
+### Testing and Development
 ```bash
-# Send test message via curl
-curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"name":"test_entity", "label":"Test Entity", "message":"hello world"}'
+# Generate test messages for development
+python test_message_generator.py batch --entities 3 --messages 5
+
+# Continuous message generation for real-time testing
+python test_message_generator.py continuous --entities 2 --interval 1.0
+
+# Run predefined test scenarios (search, filter, activity tests)
+python test_message_generator.py scenarios
+
+# Send single test message via curl
+curl -X POST http://localhost:8000/send-message/ -H "Content-Type: application/json" -d '{"name":"test_entity", "label":"Test Entity", "message":"hello world", "log_level":"INFO"}'
 ```
 
 ## Architecture Overview
@@ -63,9 +69,33 @@ This is a real-time web-based debugging tool built with FastAPI, WebSockets, and
 - **Keyboard Navigation**: Arrow keys and number keys for entity navigation
 - **Flexible Schema**: Additional key/value pairs beyond core fields are displayed
 
-### Static Assets
+### Frontend Architecture
 
-The web interface (`multi_entity_debugger/index.html`) includes embedded JavaScript for WebSocket handling and keyboard navigation, with CSS styling (`multi_entity_debugger/static/styles.css`) for the entity list and message display.
+The web interface uses Backbone.js with Marionette.js for MVC structure and jQuery for DOM manipulation:
+
+**Main Layout** (`websocket.js:4-10`): Marionette Application with regions for entities and messages, managing the overall UI structure and WebSocket connection.
+
+**Entity Management**:
+- `EntitiesView`: Collection view managing entity list with activity indicators
+- `EntityView`: Individual entity rendering with click handlers and styling
+- Per-entity state tracking for filters, auto-scroll, and statistics
+
+**Message Display**:
+- `MessagesView`: Collection view with filtering, search, and auto-scroll functionality
+- `MessageView`: Individual message rendering with log level styling
+- Real-time filtering and per-entity memory of filter states
+
+**UI Features**:
+- **Custom Log Level Filter**: Tag-based multi-select replacing native `<select multiple>`
+- **Keyboard Navigation**: Global shortcuts with input focus detection
+- **Theme Management**: CSS custom properties with localStorage persistence
+- **Auto-scroll**: Per-entity scrolling with manual control and position detection
+
+**CSS Architecture**:
+- **Scrollable Layout**: `#messages` container has `max-height: 70vh` and `overflow-y: auto` for proper scrolling
+- **Dark Mode**: CSS custom properties (`--bg-primary`, `--text-primary`, etc.) for theme switching
+- **Log Level Styling**: Color-coded message backgrounds and tag components matching log levels
+- **Responsive Design**: Flexible layouts that adapt to different viewport sizes
 
 ## Message Format
 
