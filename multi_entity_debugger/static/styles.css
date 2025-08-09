@@ -1,3 +1,13 @@
+/* Simple fix: Just make messages container scrollable with fixed height */
+#messages {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    background-color: white;
+}
+
 .entity-container {
     display: inline-block;
 }
@@ -681,4 +691,11 @@ body.dark-mode .log-level-option {
 
 body.dark-mode .log-level-option:hover {
     background: var(--bg-primary);
+}
+
+/* Dark mode support for messages container */
+body.dark-mode #messages {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
 }

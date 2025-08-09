@@ -605,18 +605,23 @@ MyApp.on('start', function() {
             if (!currentEntity) return;
             var currentEnabled = getEntityAutoScroll(currentEntity);
             setEntityAutoScroll(currentEntity, !currentEnabled);
+            
+            // If we just enabled auto-scroll, scroll to bottom immediately
+            if (!currentEnabled) {
+                var messagesEl = this.ui.messagesContainer[0];
+                if (messagesEl) {
+                    setTimeout(function() {
+                        scrollToBottom(messagesEl);
+                    }, 10);
+                }
+            }
         },
         onThemeToggle: function() {
             toggleDarkMode();
         },
         onMessagesScroll: function() {
-            if (!currentEntity) return;
-            var messagesEl = this.ui.messagesContainer[0];
-            if (messagesEl && isScrolledToBottom(messagesEl)) {
-                if (!getEntityAutoScroll(currentEntity)) {
-                    setEntityAutoScroll(currentEntity, true);
-                }
-            }
+            // Just handle scroll events without changing auto-scroll state
+            // Let users manually control auto-scroll via the button
         },
         applyFilters: function() {
             if (!currentEntity) return;
