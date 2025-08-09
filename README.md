@@ -103,8 +103,7 @@ Messages for existing entities are dynamically updated.
 
 **Navigation**
 - `←/→` or `Tab/Shift+Tab`: Switch between entities
-- `1-9`: Jump directly to entity by position  
-- `Ctrl/Cmd + 1-9`: Quick jump to entity
+- `1-9`: Jump directly to entity by position
 
 **Search & Filters**
 - `Ctrl/Cmd + F`: Focus search input

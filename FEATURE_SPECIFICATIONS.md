@@ -137,7 +137,6 @@ Add keyboard shortcuts for common actions to improve user efficiency.
 - **S**: Toggle auto-scroll for current entity
 - **D**: Toggle dark mode (Feature 11)
 - **Escape**: Clear search input and filters
-- **Ctrl/Cmd + 1-9**: Quick jump to entity by position (supplement existing number keys)
 
 ### UI Components
 - **Keyboard Shortcuts Help**: Modal or tooltip showing available shortcuts
