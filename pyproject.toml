@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-entity-debugger"
+version = "0.1.0"
+authors = [
+    {name = "Chad Phillips", email = "chad@apartmentlines.com"}
+]
+description = "Simple UI for displaying/updating data from multiple entities in a web browser."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: Utilities",
+    "Framework :: FastAPI",
+]
+keywords = ["debugging", "fastapi", "websockets", "real-time", "multi-entity"]
+dependencies = [
+    "uvicorn[standard]",
+    "fastapi",
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/thehunmonkgroup/multi-entity-debugger"
+Repository = "https://github.com/thehunmonkgroup/multi-entity-debugger"
+Issues = "https://github.com/thehunmonkgroup/multi-entity-debugger/issues"
+
+[project.scripts]
+multi-entity-debugger = "multi_entity_debugger.debugger:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["multi_entity_debugger*"]
+
+[tool.setuptools.package-data]
+multi_entity_debugger = [
+    "index.html",
+    "static/*",
+    "static/**/*",
+]
