@@ -326,11 +326,16 @@ MyApp.on('start', function() {
     };
 
     var showHelpModal = function() {
+        if ($('.help-modal-overlay').length > 0) {
+            return;
+        }
+        
         var helpHtml = document.getElementById('help-modal-template').innerHTML;
         $('body').append(helpHtml);
         $('.help-modal-overlay').css('display', 'flex');
         
-        $('#help-close, .help-modal-overlay').on('click', function(e) {
+        $('#help-close').on('click', hideHelpModal);
+        $('.help-modal-overlay').on('click', function(e) {
             if (e.target === this) {
                 hideHelpModal();
             }
@@ -338,7 +343,7 @@ MyApp.on('start', function() {
     };
 
     var hideHelpModal = function() {
-        $('.help-modal-overlay').remove();
+        $('.help-modal-overlay').off('click').remove();
     };
 
     var isMac = function() {
