@@ -413,7 +413,6 @@ MyApp.on('start', function() {
             }
         },
         entityClicked: function(e) {
-            e.preventDefault();
             var entityId = this.model.get('name');
             MyApp.trigger('entity:selected', entityId);
         }
