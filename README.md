@@ -6,13 +6,28 @@ Simple web browser UI for displaying/updating data from multiple entities.
 
 ## Features
 
-* Groups messages by entity for easy organization and reference
-* Displays messages for each entity in chronological order for clear historical context
-* Facilitates quick navigation between entities with:
-    * Single-click access
-    * Keyboard shortcuts for power users
-* Provides a straightforward interface for sending messages to the debugger
-* Built-in class to easily add a custom logging handler to Python's logging framework
+### Core Functionality
+* **Entity Organization**: Groups messages by entity with clear visual separation
+* **Real-time Updates**: Live message streaming via WebSocket connection
+* **Chronological Display**: Messages shown in time order with enhanced timestamps
+* **Flexible Schema**: Support for arbitrary key/value pairs beyond core fields
+
+### Enhanced User Experience
+* **Message Filtering & Search**: 
+  - Full-text search across all message fields
+  - Filter by log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  - Real-time filtering with status indicators
+* **Smart Auto-scroll**: Per-entity toggle with automatic re-enabling
+* **Relative Timestamps**: Human-readable time display ("2 minutes ago") with precise tooltips
+* **Entity Statistics**: Message counts, activity rates, and last message indicators
+* **Dark/Light Themes**: Automatic system detection with manual toggle
+* **Keyboard Navigation**: Comprehensive shortcuts for power users
+
+### Developer Integration
+* **Python Logging Integration**: Drop-in handler for standard logging framework  
+* **HTTP API**: Simple REST endpoint for any language/platform
+* **Programmatic Access**: Direct Python module usage
+* **Color-coded Log Levels**: Visual distinction for different message priorities
 
 ## Installation
 
@@ -58,12 +73,53 @@ Messages for existing entities are dynamically updated.
 
 *Note: The interface does not persist messages between browser sessions. Reloading the browser will clear all displayed entities and messages.*
 
-#### Navigation
+### Interface Features
 
-- Click on an entity to view its messages in chronological order.
-- Use `Up Arrow` / `Down Arrow` and `Page Up` / `Page Down` to scroll through messages.
-- Navigate between entities using `Right Arrow` / `Tab` for the next entity and `Left Arrow` / `Shift+Tab` for the previous one.
-- Directly jump to an entity using number keys `1-9`.
+#### Message Filtering
+- **Search**: Type in the search box to filter messages by content
+- **Log Level Filter**: Dropdown to show only specific log levels  
+- **Filter Status**: Shows "X of Y messages" when filters are active
+- **Per-Entity**: Each entity remembers its own filter settings
+
+#### Auto-scroll Control
+- **Smart Scrolling**: New messages automatically scroll into view
+- **Manual Override**: Scroll up to pause, scroll to bottom to resume
+- **Per-Entity**: Each entity has independent auto-scroll settings
+- **Visual Toggle**: Button shows current state (ON/OFF)
+
+#### Entity Statistics  
+- **Message Counts**: Badge showing total messages per entity
+- **Activity Indicators**: Colored glow shows high/medium/low activity
+- **Hover Details**: Tooltip with rate per minute and last message time
+- **Real-time Updates**: Statistics refresh automatically
+
+#### Theme Support
+- **System Detection**: Automatically matches your OS theme preference
+- **Manual Toggle**: Click moon/sun icon or press `D` key
+- **Persistent**: Remembers your choice across browser sessions
+- **Complete Coverage**: All UI elements adapt to chosen theme
+
+#### Keyboard Shortcuts
+
+**Navigation**
+- `←/→` or `Tab/Shift+Tab`: Switch between entities
+- `1-9`: Jump directly to entity by position  
+- `Ctrl/Cmd + 1-9`: Quick jump to entity
+
+**Search & Filters**
+- `Ctrl/Cmd + F`: Focus search input
+- `Escape`: Clear search and filters
+
+**Actions**  
+- `S`: Toggle auto-scroll for current entity
+- `Ctrl/Cmd + K`: Clear messages for current entity
+- `Ctrl/Cmd + Shift + K`: Clear all messages
+- `D`: Toggle dark/light mode
+
+**Help**
+- `?`: Show/hide keyboard shortcuts help
+
+*Tip: Press `?` in the interface to see all shortcuts*
 
 ### Message Format
 
