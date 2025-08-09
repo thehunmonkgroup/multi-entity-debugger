@@ -126,7 +126,7 @@ class MultiEntityDebugger:
 
     def run(self):
         logging.debug("Running MultiEntityDebugger")
-        uvicorn.run(self.app, host=self.host, port=8000)
+        uvicorn.run(self.app, host=self.host, port=self.port)
 
     async def run_manager(self):
         logging.debug("Running WebSocketManager")
