@@ -147,6 +147,45 @@ MyApp.on('start', function() {
         element.scrollTop = element.scrollHeight;
     };
 
+    var formatRelativeTime = function(timestamp) {
+        var now = new Date();
+        var messageTime = new Date(timestamp);
+        var diffMs = now - messageTime;
+        var diffSeconds = Math.floor(diffMs / 1000);
+        var diffMinutes = Math.floor(diffSeconds / 60);
+        var diffHours = Math.floor(diffMinutes / 60);
+        var diffDays = Math.floor(diffHours / 24);
+
+        if (diffSeconds < 30) {
+            return 'just now';
+        } else if (diffSeconds < 60) {
+            return diffSeconds + ' seconds ago';
+        } else if (diffMinutes === 1) {
+            return '1 minute ago';
+        } else if (diffMinutes < 60) {
+            return diffMinutes + ' minutes ago';
+        } else if (diffHours === 1) {
+            return '1 hour ago';
+        } else if (diffHours < 24) {
+            return diffHours + ' hours ago';
+        } else if (diffDays === 1) {
+            return 'yesterday';
+        } else if (diffDays < 7) {
+            return diffDays + ' days ago';
+        } else {
+            return timestamp;
+        }
+    };
+
+    var updateRelativeTimes = function() {
+        $('.relative-time').each(function() {
+            var timestamp = $(this).data('timestamp');
+            if (timestamp) {
+                $(this).text(formatRelativeTime(timestamp));
+            }
+        });
+    };
+
     var EntityView = Marionette.View.extend({
         tagName: 'div',
         className: 'entity-container',
@@ -257,11 +296,15 @@ MyApp.on('start', function() {
                 if (getEntityAutoScroll(currentEntity) && messagesEl) {
                     setTimeout(function() {
                         scrollToBottom(messagesEl);
+                        updateRelativeTimes();
                     }, 10);
+                } else {
+                    setTimeout(updateRelativeTimes, 10);
                 }
             }
         },
         onMessageAdded: function() {
+            setTimeout(updateRelativeTimes, 10);
             if (currentEntity && getEntityAutoScroll(currentEntity)) {
                 var messagesEl = this.ui.messagesContainer[0];
                 if (messagesEl) {
@@ -336,6 +379,8 @@ MyApp.on('start', function() {
     mainLayout.showChildView('messages', messagesView);
 
     activateKeyHandlers();
+
+    setInterval(updateRelativeTimes, 30000);
 
     MyApp.on('entity:selected', function(entityId) {
         currentEntity = entityId;

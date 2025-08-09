@@ -51,8 +51,16 @@
             <dl <% if (message.log_level) { %> class="<%- message.log_level.toLowerCase() %>" <% } %>>
                 <% _.each(message, function(value, key) {
                     if (!['id', 'name', 'label'].includes(key)) { %>
-                        <dt><%- key %></dt>
-                        <dd><% if (typeof value === 'object') { %><pre><%- JSON.stringify(value, null, 2) %></pre><% } else { %><%- value %><% } %></dd>
+                        <dt><% if (key === 'timestamp') { %>Time<% } else { %><%- key %><% } %></dt>
+                        <dd>
+                            <% if (key === 'timestamp') { %>
+                                <span class="relative-time" data-timestamp="<%- value %>" title="<%- value %>"><%- value %></span>
+                            <% } else if (typeof value === 'object') { %>
+                                <pre><%- JSON.stringify(value, null, 2) %></pre>
+                            <% } else { %>
+                                <%- value %>
+                            <% } %>
+                        </dd>
                     <% }
                 }); %>
             </dl>

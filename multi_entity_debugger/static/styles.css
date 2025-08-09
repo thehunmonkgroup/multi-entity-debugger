@@ -192,3 +192,9 @@
     font-weight: bold;
     font-size: 16px;
 }
+
+.relative-time {
+    color: #007bff;
+    cursor: help;
+    border-bottom: 1px dotted #007bff;
+}
