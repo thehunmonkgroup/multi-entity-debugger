@@ -76,7 +76,7 @@ MyApp.on('start', function() {
                 }
                 
                 if (e.which === 68) {
-                    MyApp.trigger('toggle:darkmode');
+                    toggleDarkMode();
                     e.preventDefault();
                     return;
                 }
@@ -344,6 +344,37 @@ MyApp.on('start', function() {
         return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     };
 
+    var isDarkMode = function() {
+        return document.body.classList.contains('dark-mode');
+    };
+
+    var toggleDarkMode = function() {
+        document.body.classList.toggle('dark-mode');
+        var darkModeEnabled = isDarkMode();
+        localStorage.setItem('darkMode', darkModeEnabled);
+        updateThemeToggleIcon();
+    };
+
+    var updateThemeToggleIcon = function() {
+        var icon = $('.theme-icon');
+        if (isDarkMode()) {
+            icon.text('☀️');
+        } else {
+            icon.text('🌙');
+        }
+    };
+
+    var initializeTheme = function() {
+        var savedTheme = localStorage.getItem('darkMode');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'true' || (savedTheme === null && prefersDark)) {
+            document.body.classList.add('dark-mode');
+        }
+        
+        updateThemeToggleIcon();
+    };
+
     var EntityView = Marionette.View.extend({
         tagName: 'div',
         className: 'entity-container',
@@ -431,6 +462,7 @@ MyApp.on('start', function() {
             logLevelFilter: '#log-level-filter',
             clearButton: '#clear-filters',
             autoScrollToggle: '#auto-scroll-toggle',
+            themeToggle: '#theme-toggle',
             messagesContainer: '#messages'
         },
         events: {
@@ -438,6 +470,7 @@ MyApp.on('start', function() {
             'change @ui.logLevelFilter': 'onLogLevelChange',
             'click @ui.clearButton': 'onClearFilters',
             'click @ui.autoScrollToggle': 'onAutoScrollToggle',
+            'click @ui.themeToggle': 'onThemeToggle',
             'scroll @ui.messagesContainer': 'onMessagesScroll'
         },
         childViewContainer: '#messages',
@@ -511,6 +544,9 @@ MyApp.on('start', function() {
             var currentEnabled = getEntityAutoScroll(currentEntity);
             setEntityAutoScroll(currentEntity, !currentEnabled);
         },
+        onThemeToggle: function() {
+            toggleDarkMode();
+        },
         onMessagesScroll: function() {
             if (!currentEntity) return;
             var messagesEl = this.ui.messagesContainer[0];
@@ -549,6 +585,7 @@ MyApp.on('start', function() {
     mainLayout.showChildView('entities', entitiesView);
     mainLayout.showChildView('messages', messagesView);
 
+    initializeTheme();
     activateKeyHandlers();
 
     setInterval(updateRelativeTimes, 30000);

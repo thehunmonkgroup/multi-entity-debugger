@@ -21,10 +21,15 @@
     <script type="text/template" id="messages-template">
         <div class="messages-header-row">
             <h1 id="messages-header"></h1>
-            <button id="auto-scroll-toggle" class="auto-scroll-button auto-scroll-on">
-                <span class="auto-scroll-icon">↓</span>
-                <span class="auto-scroll-text">Auto-scroll: ON</span>
-            </button>
+            <div class="header-controls">
+                <button id="theme-toggle" class="theme-toggle-button">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button id="auto-scroll-toggle" class="auto-scroll-button auto-scroll-on">
+                    <span class="auto-scroll-icon">↓</span>
+                    <span class="auto-scroll-text">Auto-scroll: ON</span>
+                </button>
+            </div>
         </div>
         <div class="message-filters">
             <input type="text" id="search-input" placeholder="Search messages..." />
