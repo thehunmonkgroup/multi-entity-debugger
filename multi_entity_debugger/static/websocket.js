@@ -253,7 +253,7 @@ MyApp.on('start', function() {
             entityStats[entityId] = {
                 messageCount: 0,
                 messageTimestamps: [],
-                lastMessage: null
+                lastMessageTimestamp: null
             };
         }
         return entityStats[entityId];
@@ -262,7 +262,7 @@ MyApp.on('start', function() {
     var updateEntityStats = function(entityId, timestamp) {
         var stats = getEntityStats(entityId);
         stats.messageCount++;
-        stats.lastMessage = formatRelativeTime(timestamp);
+        stats.lastMessageTimestamp = timestamp;
         
         var now = new Date();
         var messageTime = new Date(timestamp);
@@ -294,10 +294,11 @@ MyApp.on('start', function() {
         var entity = entitiesView.collection.get(entityId);
         if (entity) {
             var stats = getEntityStats(entityId);
+            var lastMessage = stats.lastMessageTimestamp ? formatRelativeTime(stats.lastMessageTimestamp) : 'never';
             entity.set({
                 messageCount: stats.messageCount,
                 messageRate: stats.messageRate || '0.0',
-                lastMessage: stats.lastMessage || 'never'
+                lastMessage: lastMessage
             });
         }
     };
@@ -307,7 +308,7 @@ MyApp.on('start', function() {
         entityStats[entityId] = {
             messageCount: 0,
             messageTimestamps: [],
-            lastMessage: null
+            lastMessageTimestamp: null
         };
         
         updateEntityDisplay(entityId);
@@ -593,11 +594,7 @@ MyApp.on('start', function() {
     setInterval(function() {
         entitiesView.collection.each(function(entity) {
             var entityId = entity.get('name');
-            var stats = getEntityStats(entityId);
-            if (stats.lastMessage) {
-                stats.lastMessage = formatRelativeTime(stats.lastMessage);
-                entity.set('lastMessage', stats.lastMessage);
-            }
+            updateEntityDisplay(entityId);
         });
     }, 30000);
 
@@ -635,6 +632,7 @@ MyApp.on('start', function() {
         
         if (!entitiesView.collection.get(data.name)) {
             var stats = getEntityStats(data.name);
+            var lastMessage = stats.lastMessageTimestamp ? formatRelativeTime(stats.lastMessageTimestamp) : 'never';
             entitiesView.collection.add(new Backbone.Model({ 
                 id: data.name, 
                 name: data.name, 
@@ -642,7 +640,7 @@ MyApp.on('start', function() {
                 active: currentEntity === null,
                 messageCount: stats.messageCount,
                 messageRate: stats.messageRate || '0.0',
-                lastMessage: stats.lastMessage || 'never'
+                lastMessage: lastMessage
             }));
         } else {
             updateEntityDisplay(data.name);
