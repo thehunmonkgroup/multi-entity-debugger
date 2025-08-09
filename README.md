@@ -13,7 +13,7 @@ Simple web browser UI for displaying/updating data from multiple entities.
 * **Flexible Schema**: Support for arbitrary key/value pairs beyond core fields
 
 ### Enhanced User Experience
-* **Message Filtering & Search**: 
+* **Message Filtering & Search**:
   - Full-text search across all message fields
   - Filter by log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
   - Real-time filtering with status indicators
@@ -24,7 +24,7 @@ Simple web browser UI for displaying/updating data from multiple entities.
 * **Keyboard Navigation**: Comprehensive shortcuts for power users
 
 ### Developer Integration
-* **Python Logging Integration**: Drop-in handler for standard logging framework  
+* **Python Logging Integration**: Drop-in handler for standard logging framework
 * **HTTP API**: Simple REST endpoint for any language/platform
 * **Programmatic Access**: Direct Python module usage
 * **Color-coded Log Levels**: Visual distinction for different message priorities
@@ -77,7 +77,7 @@ Messages for existing entities are dynamically updated.
 
 #### Message Filtering
 - **Search**: Type in the search box to filter messages by content
-- **Log Level Filter**: Dropdown to show only specific log levels  
+- **Log Level Filter**: Dropdown to show only specific log levels
 - **Filter Status**: Shows "X of Y messages" when filters are active
 - **Per-Entity**: Each entity remembers its own filter settings
 
@@ -87,7 +87,7 @@ Messages for existing entities are dynamically updated.
 - **Per-Entity**: Each entity has independent auto-scroll settings
 - **Visual Toggle**: Button shows current state (ON/OFF)
 
-#### Entity Statistics  
+#### Entity Statistics
 - **Message Counts**: Badge showing total messages per entity
 - **Activity Indicators**: Colored glow shows high/medium/low activity
 - **Hover Details**: Tooltip with rate per minute and last message time
@@ -109,7 +109,7 @@ Messages for existing entities are dynamically updated.
 - `Ctrl/Cmd + F`: Focus search input
 - `Escape`: Clear search and filters
 
-**Actions**  
+**Actions**
 - `S`: Toggle auto-scroll for current entity
 - `Ctrl/Cmd + K`: Clear messages for current entity
 - `Ctrl/Cmd + Shift + K`: Clear all messages
