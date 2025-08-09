@@ -156,7 +156,13 @@ MyApp.on('start', function() {
 
     ws.onmessage = function(event) {
         console.log(`Received message ${event.data}`);
-        var data = JSON.parse(event.data);
+        var data;
+        try {
+            data = JSON.parse(event.data);
+        } catch (e) {
+            console.error('Failed to parse WebSocket message as JSON:', event.data, e);
+            return;
+        }
         if (!messages[data.name]) {
             messages[data.name] = [];
         }
