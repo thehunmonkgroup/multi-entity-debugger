@@ -111,8 +111,10 @@ MyApp.on('start', function() {
         return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     };
 
-    var matchesFilter = function(message, searchText, logLevel) {
-        if (logLevel && message.log_level !== logLevel) {
+    var matchesFilter = function(message, searchText, logLevels) {
+        var messageLogLevel = message.get ? message.get('log_level') : message.log_level;
+        
+        if (logLevels && logLevels.length > 0 && logLevels.indexOf(messageLogLevel) === -1) {
             return false;
         }
         
@@ -151,7 +153,7 @@ MyApp.on('start', function() {
         if (!entityFilters[entityId]) {
             entityFilters[entityId] = {
                 searchText: '',
-                logLevel: ''
+                logLevels: []
             };
         }
         return entityFilters[entityId];
@@ -161,11 +163,11 @@ MyApp.on('start', function() {
         var filter = getEntityFilter(entityId);
         var allMessages = messages[entityId] || [];
         var filteredMessages = allMessages.filter(function(msg) {
-            return matchesFilter(msg, filter.searchText, filter.logLevel);
+            return matchesFilter(msg, filter.searchText, filter.logLevels);
         });
         
         var statusText = '';
-        if (filter.searchText || filter.logLevel) {
+        if (filter.searchText || filter.logLevels.length > 0) {
             statusText = 'Showing ' + filteredMessages.length + ' of ' + allMessages.length + ' messages';
         }
         
@@ -464,7 +466,9 @@ MyApp.on('start', function() {
         ui: {
             header: '#messages-header',
             searchInput: '#search-input',
-            logLevelFilter: '#log-level-filter',
+            logLevelTags: '#log-level-tags',
+            logLevelDropdownBtn: '#log-level-dropdown-btn',
+            logLevelDropdownMenu: '#log-level-dropdown-menu',
             clearButton: '#clear-filters',
             autoScrollToggle: '#auto-scroll-toggle',
             themeToggle: '#theme-toggle',
@@ -472,7 +476,8 @@ MyApp.on('start', function() {
         },
         events: {
             'input @ui.searchInput': 'onSearchChange',
-            'change @ui.logLevelFilter': 'onLogLevelChange',
+            'click @ui.logLevelDropdownBtn': 'onDropdownToggle',
+            'change @ui.logLevelDropdownMenu input[type="checkbox"]': 'onLogLevelChange',
             'click @ui.clearButton': 'onClearFilters',
             'click @ui.autoScrollToggle': 'onAutoScrollToggle',
             'click @ui.themeToggle': 'onThemeToggle',
@@ -484,7 +489,15 @@ MyApp.on('start', function() {
             if (currentEntity) {
                 var filter = getEntityFilter(currentEntity);
                 this.ui.searchInput.val(filter.searchText);
-                this.ui.logLevelFilter.val(filter.logLevel);
+                
+                // Update checkboxes based on filter
+                var self = this;
+                this.ui.logLevelDropdownMenu.find('input[type="checkbox"]').each(function() {
+                    var checkbox = $(this);
+                    checkbox.prop('checked', filter.logLevels.indexOf(checkbox.val()) !== -1);
+                });
+                
+                this.updateLogLevelTags();
                 updateFilterStatus(currentEntity);
                 updateAutoScrollButton(currentEntity);
             }
@@ -497,7 +510,15 @@ MyApp.on('start', function() {
             if (currentEntity) {
                 var filter = getEntityFilter(currentEntity);
                 this.ui.searchInput.val(filter.searchText);
-                this.ui.logLevelFilter.val(filter.logLevel);
+                
+                // Update checkboxes
+                var self = this;
+                this.ui.logLevelDropdownMenu.find('input[type="checkbox"]').each(function() {
+                    var checkbox = $(this);
+                    checkbox.prop('checked', filter.logLevels.indexOf(checkbox.val()) !== -1);
+                });
+                
+                this.updateLogLevelTags();
                 updateFilterStatus(currentEntity);
                 updateAutoScrollButton(currentEntity);
                 
@@ -529,19 +550,55 @@ MyApp.on('start', function() {
             filter.searchText = this.ui.searchInput.val();
             this.applyFilters();
         },
+        onDropdownToggle: function() {
+            $('.log-level-dropdown').toggleClass('open');
+        },
         onLogLevelChange: function() {
             if (!currentEntity) return;
             var filter = getEntityFilter(currentEntity);
-            filter.logLevel = this.ui.logLevelFilter.val();
+            var selectedLevels = [];
+            this.ui.logLevelDropdownMenu.find('input[type="checkbox"]:checked').each(function() {
+                selectedLevels.push($(this).val());
+            });
+            filter.logLevels = selectedLevels;
+            this.updateLogLevelTags();
+            this.applyFilters();
+        },
+        updateLogLevelTags: function() {
+            if (!currentEntity) return;
+            var filter = getEntityFilter(currentEntity);
+            var tagsContainer = this.ui.logLevelTags;
+            tagsContainer.empty();
+            
+            filter.logLevels.forEach(function(level) {
+                var tag = $('<span class="log-level-tag ' + level.toLowerCase() + '">' +
+                    level + ' <span class="tag-remove">×</span></span>');
+                tag.find('.tag-remove').on('click', function(e) {
+                    e.stopPropagation();
+                    messagesView.removeLogLevelTag(level);
+                });
+                tagsContainer.append(tag);
+            });
+        },
+        removeLogLevelTag: function(level) {
+            if (!currentEntity) return;
+            var filter = getEntityFilter(currentEntity);
+            filter.logLevels = filter.logLevels.filter(function(l) { return l !== level; });
+            
+            // Update checkbox
+            this.ui.logLevelDropdownMenu.find('input[value="' + level + '"]').prop('checked', false);
+            
+            this.updateLogLevelTags();
             this.applyFilters();
         },
         onClearFilters: function() {
             if (!currentEntity) return;
             var filter = getEntityFilter(currentEntity);
             filter.searchText = '';
-            filter.logLevel = '';
+            filter.logLevels = [];
             this.ui.searchInput.val('');
-            this.ui.logLevelFilter.val('');
+            this.ui.logLevelDropdownMenu.find('input[type="checkbox"]').prop('checked', false);
+            this.updateLogLevelTags();
             this.applyFilters();
         },
         onAutoScrollToggle: function() {
@@ -566,7 +623,7 @@ MyApp.on('start', function() {
             var filter = getEntityFilter(currentEntity);
             var allMessages = messages[currentEntity] || [];
             var filteredMessages = allMessages.filter(function(msg) {
-                return matchesFilter(msg, filter.searchText, filter.logLevel);
+                return matchesFilter(msg, filter.searchText, filter.logLevels);
             });
             this.collection.reset(filteredMessages);
             updateFilterStatus(currentEntity);
@@ -592,6 +649,13 @@ MyApp.on('start', function() {
 
     initializeTheme();
     activateKeyHandlers();
+    
+    // Close log level dropdown when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.log-level-dropdown').length) {
+            $('.log-level-dropdown').removeClass('open');
+        }
+    });
 
     setInterval(updateRelativeTimes, 30000);
     
@@ -607,7 +671,7 @@ MyApp.on('start', function() {
         var filter = getEntityFilter(entityId);
         var allMessages = messages[entityId] || [];
         var filteredMessages = allMessages.filter(function(msg) {
-            return matchesFilter(msg, filter.searchText, filter.logLevel);
+            return matchesFilter(msg, filter.searchText, filter.logLevels);
         });
         messagesView.collection.reset(filteredMessages);
         var entity = entitiesView.collection.get(entityId);
@@ -654,7 +718,7 @@ MyApp.on('start', function() {
             MyApp.trigger('entity:selected', currentEntity);
         } else if (currentEntity === data.name) {
             var filter = getEntityFilter(currentEntity);
-            if (matchesFilter(messageModel, filter.searchText, filter.logLevel)) {
+            if (matchesFilter(messageModel, filter.searchText, filter.logLevels)) {
                 messagesView.collection.add(messageModel);
             }
             updateFilterStatus(currentEntity);

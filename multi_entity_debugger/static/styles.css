@@ -496,3 +496,189 @@ body.dark-mode .message-container dl.critical {
 .entity-badge {
     background-color: var(--text-secondary);
 }
+
+/* Log Level Filter Styling */
+.log-level-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.log-level-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.log-level-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.log-level-tag .tag-remove {
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.log-level-tag .tag-remove:hover {
+    opacity: 1;
+}
+
+/* Tag colors matching message log levels */
+.log-level-tag.debug {
+    background-color: #ebf5ee;
+    color: #2d5a3d;
+    border: 1px solid #9de19d;
+}
+
+.log-level-tag.info {
+    background-color: #e9f7fe;
+    color: #1e4a6b;
+    border: 1px solid #3d9cd6;
+}
+
+.log-level-tag.warning {
+    background-color: #fdf8e2;
+    color: #6b5b00;
+    border: 1px solid #f2da66;
+}
+
+.log-level-tag.error {
+    background-color: #fdeeee;
+    color: #7a2626;
+    border: 1px solid #f28787;
+}
+
+.log-level-tag.critical {
+    background-color: #f9ebfc;
+    color: #6b2c87;
+    border: 1px solid #c389f5;
+}
+
+.log-level-dropdown {
+    position: relative;
+}
+
+.log-level-dropdown-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.log-level-dropdown-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.log-level-dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.log-level-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 100px;
+    margin-top: 2px;
+}
+
+.log-level-dropdown.open .log-level-dropdown-menu {
+    display: block;
+}
+
+.log-level-option {
+    display: block;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.log-level-option:last-child {
+    border-bottom: none;
+}
+
+.log-level-option:hover {
+    background: #f8f9fa;
+}
+
+.log-level-option input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+/* Dark mode support */
+body.dark-mode .log-level-tag.debug {
+    background-color: #2d5a3d;
+    color: #9de19d;
+}
+
+body.dark-mode .log-level-tag.info {
+    background-color: #1e4a6b;
+    color: #3d9cd6;
+}
+
+body.dark-mode .log-level-tag.warning {
+    background-color: #6b5b00;
+    color: #f2da66;
+}
+
+body.dark-mode .log-level-tag.error {
+    background-color: #7a2626;
+    color: #f28787;
+}
+
+body.dark-mode .log-level-tag.critical {
+    background-color: #6b2c87;
+    color: #c389f5;
+}
+
+body.dark-mode .log-level-dropdown-btn {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+    color: var(--text-primary);
+}
+
+body.dark-mode .log-level-dropdown-btn:hover {
+    background: var(--bg-primary);
+}
+
+body.dark-mode .log-level-dropdown-menu {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+}
+
+body.dark-mode .log-level-option {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-light);
+}
+
+body.dark-mode .log-level-option:hover {
+    background: var(--bg-primary);
+}

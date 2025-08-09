@@ -33,14 +33,32 @@
         </div>
         <div class="message-filters">
             <input type="text" id="search-input" placeholder="Search messages..." />
-            <select id="log-level-filter">
-                <option value="">All log levels</option>
-                <option value="DEBUG">DEBUG</option>
-                <option value="INFO">INFO</option>
-                <option value="WARNING">WARNING</option>
-                <option value="ERROR">ERROR</option>
-                <option value="CRITICAL">CRITICAL</option>
-            </select>
+            <div class="log-level-filter-container">
+                <div class="log-level-tags" id="log-level-tags"></div>
+                <div class="log-level-dropdown">
+                    <button type="button" class="log-level-dropdown-btn" id="log-level-dropdown-btn">
+                        <span>Filter by level</span>
+                        <span class="dropdown-arrow">▾</span>
+                    </button>
+                    <div class="log-level-dropdown-menu" id="log-level-dropdown-menu">
+                        <label class="log-level-option">
+                            <input type="checkbox" value="DEBUG"> DEBUG
+                        </label>
+                        <label class="log-level-option">
+                            <input type="checkbox" value="INFO"> INFO
+                        </label>
+                        <label class="log-level-option">
+                            <input type="checkbox" value="WARNING"> WARNING
+                        </label>
+                        <label class="log-level-option">
+                            <input type="checkbox" value="ERROR"> ERROR
+                        </label>
+                        <label class="log-level-option">
+                            <input type="checkbox" value="CRITICAL"> CRITICAL
+                        </label>
+                    </div>
+                </div>
+            </div>
             <button id="clear-filters">Clear Filters</button>
             <div class="filter-status" id="filter-status"></div>
         </div>
