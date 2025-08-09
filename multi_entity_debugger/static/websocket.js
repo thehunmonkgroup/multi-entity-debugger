@@ -17,6 +17,7 @@ MyApp.on('start', function() {
     var messagesHeader = $('#messages-header');
     var entityFilters = {};
     var entityAutoScroll = {};
+    var entityStats = {};
 
     var activateKeyHandlers = function() {
         $(document).on('keyup', function(e) {
@@ -186,6 +187,60 @@ MyApp.on('start', function() {
         });
     };
 
+    var getEntityStats = function(entityId) {
+        if (!entityStats[entityId]) {
+            entityStats[entityId] = {
+                messageCount: 0,
+                messageTimestamps: [],
+                lastMessage: null
+            };
+        }
+        return entityStats[entityId];
+    };
+
+    var updateEntityStats = function(entityId, timestamp) {
+        var stats = getEntityStats(entityId);
+        stats.messageCount++;
+        stats.lastMessage = formatRelativeTime(timestamp);
+        
+        var now = new Date();
+        var messageTime = new Date(timestamp);
+        stats.messageTimestamps.push(messageTime.getTime());
+        
+        var tenMinutesAgo = now.getTime() - (10 * 60 * 1000);
+        stats.messageTimestamps = stats.messageTimestamps.filter(function(time) {
+            return time > tenMinutesAgo;
+        });
+        
+        var rate = (stats.messageTimestamps.length / 10).toFixed(1);
+        stats.messageRate = rate;
+        
+        return stats;
+    };
+
+    var getActivityClass = function(rate) {
+        if (rate >= 2.0) {
+            return 'activity-high';
+        } else if (rate >= 0.5) {
+            return 'activity-medium';
+        } else if (rate > 0) {
+            return 'activity-low';
+        }
+        return '';
+    };
+
+    var updateEntityDisplay = function(entityId) {
+        var entity = entitiesView.collection.get(entityId);
+        if (entity) {
+            var stats = getEntityStats(entityId);
+            entity.set({
+                messageCount: stats.messageCount,
+                messageRate: stats.messageRate || '0.0',
+                lastMessage: stats.lastMessage || 'never'
+            });
+        }
+    };
+
     var EntityView = Marionette.View.extend({
         tagName: 'div',
         className: 'entity-container',
@@ -199,6 +254,9 @@ MyApp.on('start', function() {
         modelEvents: {
             'change:active': function() {
                 this.render();
+            },
+            'change:messageCount change:messageRate': function() {
+                this.updateActivityClass();
             }
         },
         onRender: function() {
@@ -207,6 +265,16 @@ MyApp.on('start', function() {
             }
             else {
                 this.ui.link.removeClass('entity-link-active');
+            }
+            this.updateActivityClass();
+        },
+        updateActivityClass: function() {
+            var rate = parseFloat(this.model.get('messageRate') || '0');
+            var activityClass = getActivityClass(rate);
+            
+            this.ui.link.removeClass('activity-high activity-medium activity-low');
+            if (activityClass) {
+                this.ui.link.addClass(activityClass);
             }
         },
         entityClicked: function(e) {
@@ -381,6 +449,17 @@ MyApp.on('start', function() {
     activateKeyHandlers();
 
     setInterval(updateRelativeTimes, 30000);
+    
+    setInterval(function() {
+        entitiesView.collection.each(function(entity) {
+            var entityId = entity.get('name');
+            var stats = getEntityStats(entityId);
+            if (stats.lastMessage) {
+                stats.lastMessage = formatRelativeTime(stats.lastMessage);
+                entity.set('lastMessage', stats.lastMessage);
+            }
+        });
+    }, 30000);
 
     MyApp.on('entity:selected', function(entityId) {
         currentEntity = entityId;
@@ -411,8 +490,22 @@ MyApp.on('start', function() {
         data.id = getRandomId();
         var messageModel = new Backbone.Model(data);
         messages[data.name].push(messageModel);
+        
+        updateEntityStats(data.name, data.timestamp);
+        
         if (!entitiesView.collection.get(data.name)) {
-            entitiesView.collection.add(new Backbone.Model({ id: data.name, name: data.name, label: data.label, active: currentEntity === null }));
+            var stats = getEntityStats(data.name);
+            entitiesView.collection.add(new Backbone.Model({ 
+                id: data.name, 
+                name: data.name, 
+                label: data.label, 
+                active: currentEntity === null,
+                messageCount: stats.messageCount,
+                messageRate: stats.messageRate || '0.0',
+                lastMessage: stats.lastMessage || 'never'
+            }));
+        } else {
+            updateEntityDisplay(data.name);
         }
         if (currentEntity === null) {
             currentEntity = data.name;

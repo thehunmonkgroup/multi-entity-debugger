@@ -42,8 +42,12 @@
         <div id="messages"></div>
     </script>
     <script type="text/template" id="entity-template">
-        <div class="entity-link" id="link-<%- name %>">
-            <a href="#" data-id="<%- name %>"><%- label %></a>
+        <div class="entity-link" id="link-<%- name %>" 
+             title="Total: <%- messageCount || 0 %> messages&#10;Rate: <%- messageRate || '0.0' %> msgs/min&#10;Last: <%- lastMessage || 'never' %>">
+            <a href="#" data-id="<%- name %>">
+                <%- label %>
+                <span class="entity-badge"><%- messageCount || 0 %></span>
+            </a>
         </div>
     </script>
     <script type="text/template" id="message-template">
