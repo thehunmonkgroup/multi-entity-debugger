@@ -73,11 +73,12 @@ class WebSocketManager:
 
 
 class MultiEntityDebugger:
-    def __init__(self,
-                 host: str = DEFAULT_HOST,
-                 port: int = DEFAULT_PORT,
-                 custom_queue: queue.Queue = None,
-                 ):
+    def __init__(
+        self,
+        host: str = DEFAULT_HOST,
+        port: int = DEFAULT_PORT,
+        custom_queue: queue.Queue = None,
+    ):
         self.app = FastAPI()
         self.host = host
         self.port = port
@@ -88,11 +89,17 @@ class MultiEntityDebugger:
 
     def get_package_root(self):
         package_name = self.__class__.__module__.split(".")[0]
-        package_root = os.path.dirname(os.path.abspath(sys.modules[package_name].__file__))
+        package_root = os.path.dirname(
+            os.path.abspath(sys.modules[package_name].__file__)
+        )
         return package_root
 
     def setup_routes(self):
-        self.app.mount("/static", StaticFiles(directory=f"{self.package_root}/static"), name="static")
+        self.app.mount(
+            "/static",
+            StaticFiles(directory=f"{self.package_root}/static"),
+            name="static",
+        )
 
         @self.app.websocket("/ws")
         async def websocket_endpoint(websocket: WebSocket):
@@ -118,7 +125,7 @@ class MultiEntityDebugger:
 
         @self.app.get("/")
         async def get():
-            with open(f"{self.package_root}/index.html", 'r') as f:
+            with open(f"{self.package_root}/index.html", "r") as f:
                 return HTMLResponse(f.read())
 
     def add_message_to_queue(self, data):
@@ -137,7 +144,9 @@ class MultiEntityDebugger:
 
     def start(self):
         logging.info("Starting Multi-entity debugger")
-        manager_thread = threading.Thread(target=asyncio.run, args=(self.run_manager(),), daemon=True)
+        manager_thread = threading.Thread(
+            target=asyncio.run, args=(self.run_manager(),), daemon=True
+        )
         manager_thread.start()
 
         server_thread = threading.Thread(target=self.run, daemon=True)
@@ -154,9 +163,24 @@ class MultiEntityDebugger:
 
 def main():
     parser = argparse.ArgumentParser(description="Run the Multi-entity debugger.")
-    parser.add_argument("--host", type=str, default=DEFAULT_HOST, help="Host for the server to listen on. (default: %(default)s)")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port for the server to listen on. (default: %(default)s)")
-    parser.add_argument("-d", "--debug", action="store_true", help="Run the server in debug mode. (default: %(default)s)")
+    parser.add_argument(
+        "--host",
+        type=str,
+        default=DEFAULT_HOST,
+        help="Host for the server to listen on. (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help="Port for the server to listen on. (default: %(default)s)",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Run the server in debug mode. (default: %(default)s)",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
