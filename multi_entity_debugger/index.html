@@ -41,6 +41,70 @@
         </div>
         <div id="messages"></div>
     </script>
+    <script type="text/template" id="help-modal-template">
+        <div class="help-modal-overlay" id="help-modal-overlay">
+            <div class="help-modal">
+                <div class="help-modal-header">
+                    <h2>Keyboard Shortcuts</h2>
+                    <button class="help-close" id="help-close">&times;</button>
+                </div>
+                <div class="help-modal-content">
+                    <div class="help-section">
+                        <h3>Navigation</h3>
+                        <div class="help-shortcut">
+                            <span class="help-keys">←→ / Tab / Shift+Tab</span>
+                            <span class="help-description">Switch between entities</span>
+                        </div>
+                        <div class="help-shortcut">
+                            <span class="help-keys">1-9</span>
+                            <span class="help-description">Jump to entity by position</span>
+                        </div>
+                        <div class="help-shortcut">
+                            <span class="help-keys">Ctrl/Cmd + 1-9</span>
+                            <span class="help-description">Quick jump to entity</span>
+                        </div>
+                    </div>
+                    <div class="help-section">
+                        <h3>Search & Filters</h3>
+                        <div class="help-shortcut">
+                            <span class="help-keys">Ctrl/Cmd + F</span>
+                            <span class="help-description">Focus search input</span>
+                        </div>
+                        <div class="help-shortcut">
+                            <span class="help-keys">Escape</span>
+                            <span class="help-description">Clear search and filters</span>
+                        </div>
+                    </div>
+                    <div class="help-section">
+                        <h3>Actions</h3>
+                        <div class="help-shortcut">
+                            <span class="help-keys">S</span>
+                            <span class="help-description">Toggle auto-scroll</span>
+                        </div>
+                        <div class="help-shortcut">
+                            <span class="help-keys">Ctrl/Cmd + K</span>
+                            <span class="help-description">Clear messages for current entity</span>
+                        </div>
+                        <div class="help-shortcut">
+                            <span class="help-keys">Ctrl/Cmd + Shift + K</span>
+                            <span class="help-description">Clear all messages</span>
+                        </div>
+                        <div class="help-shortcut">
+                            <span class="help-keys">D</span>
+                            <span class="help-description">Toggle dark mode</span>
+                        </div>
+                    </div>
+                    <div class="help-section">
+                        <h3>Help</h3>
+                        <div class="help-shortcut">
+                            <span class="help-keys">?</span>
+                            <span class="help-description">Show/hide this help</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
     <script type="text/template" id="entity-template">
         <div class="entity-link" id="link-<%- name %>" 
              title="Total: <%- messageCount || 0 %> messages&#10;Rate: <%- messageRate || '0.0' %> msgs/min&#10;Last: <%- lastMessage || 'never' %>">

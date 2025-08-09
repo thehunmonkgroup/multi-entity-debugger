@@ -20,29 +20,90 @@ MyApp.on('start', function() {
     var entityStats = {};
 
     var activateKeyHandlers = function() {
-        $(document).on('keyup', function(e) {
-          var newEntity;
-          var collection = entitiesView.collection;
-          var activeEntity = collection.findWhere({active: true});
-          var currentIndex = collection.indexOf(activeEntity ? activeEntity : 0);
-          if (e.which === 39 || (e.which === 9 && !e.shiftKey)) { // Right arrow, Tab
-            // Get next model, loop if at end
-            var newEntity = collection.at(currentIndex + 1) || collection.at(0);
-          } else if (e.which === 37 || (e.which === 9 && e.shiftKey)) { // Left arrow, Shift+Tab
-            // Get previous model, loop if at beginning
-            var newEntity = collection.at(currentIndex - 1) || collection.last();
-          }
-          // Number keys
-          if (e.which >= 49 && e.which <= 57) {
-            var index = e.which - 49;
-            if ((collection.length > index) && currentIndex !== index) {
-              newEntity = collection.at(index);
+        $(document).on('keydown', function(e) {
+            var isInputFocused = $('input, textarea, select').is(':focus');
+            var isHelpVisible = $('.help-modal-overlay').length > 0;
+            
+            if (isHelpVisible) {
+                if (e.which === 27 || (e.which === 191 && e.shiftKey)) {
+                    hideHelpModal();
+                    e.preventDefault();
+                }
+                return;
             }
-          }
-          if (newEntity) {
-            MyApp.trigger('entity:selected', newEntity.id);
-          }
-
+            
+            var ctrlOrCmd = isMac() ? e.metaKey : e.ctrlKey;
+            
+            if (e.which === 191 && e.shiftKey) {
+                showHelpModal();
+                e.preventDefault();
+                return;
+            }
+            
+            if (ctrlOrCmd && e.which === 70) {
+                $('#search-input').focus();
+                e.preventDefault();
+                return;
+            }
+            
+            if (e.which === 27) {
+                if (isInputFocused) {
+                    $('input, textarea, select').blur();
+                } else if (currentEntity) {
+                    messagesView.onClearFilters();
+                }
+                e.preventDefault();
+                return;
+            }
+            
+            if (!isInputFocused) {
+                if (e.which === 83) {
+                    if (currentEntity) {
+                        messagesView.onAutoScrollToggle();
+                    }
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (ctrlOrCmd && e.which === 75) {
+                    if (e.shiftKey) {
+                        clearAllMessages();
+                    } else if (currentEntity) {
+                        clearEntityMessages(currentEntity);
+                    }
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (e.which === 68) {
+                    MyApp.trigger('toggle:darkmode');
+                    e.preventDefault();
+                    return;
+                }
+                
+                var collection = entitiesView.collection;
+                var activeEntity = collection.findWhere({active: true});
+                var currentIndex = collection.indexOf(activeEntity || collection.at(0));
+                var newEntity;
+                
+                if (e.which === 39 || (e.which === 9 && !e.shiftKey)) {
+                    newEntity = collection.at(currentIndex + 1) || collection.at(0);
+                } else if (e.which === 37 || (e.which === 9 && e.shiftKey)) {
+                    newEntity = collection.at(currentIndex - 1) || collection.last();
+                } else if (e.which >= 49 && e.which <= 57) {
+                    var index = e.which - 49;
+                    if (collection.length > index && currentIndex !== index) {
+                        newEntity = collection.at(index);
+                    }
+                }
+                
+                if (newEntity) {
+                    MyApp.trigger('entity:selected', newEntity.id);
+                    if (e.which === 9) {
+                        e.preventDefault();
+                    }
+                }
+            }
         });
     }
 
@@ -239,6 +300,48 @@ MyApp.on('start', function() {
                 lastMessage: stats.lastMessage || 'never'
             });
         }
+    };
+
+    var clearEntityMessages = function(entityId) {
+        messages[entityId] = [];
+        entityStats[entityId] = {
+            messageCount: 0,
+            messageTimestamps: [],
+            lastMessage: null
+        };
+        
+        updateEntityDisplay(entityId);
+        
+        if (currentEntity === entityId) {
+            messagesView.collection.reset([]);
+            updateFilterStatus(entityId);
+        }
+    };
+
+    var clearAllMessages = function() {
+        for (var entityId in messages) {
+            clearEntityMessages(entityId);
+        }
+    };
+
+    var showHelpModal = function() {
+        var helpHtml = document.getElementById('help-modal-template').innerHTML;
+        $('body').append(helpHtml);
+        $('.help-modal-overlay').css('display', 'flex');
+        
+        $('#help-close, .help-modal-overlay').on('click', function(e) {
+            if (e.target === this) {
+                hideHelpModal();
+            }
+        });
+    };
+
+    var hideHelpModal = function() {
+        $('.help-modal-overlay').remove();
+    };
+
+    var isMac = function() {
+        return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     };
 
     var EntityView = Marionette.View.extend({
