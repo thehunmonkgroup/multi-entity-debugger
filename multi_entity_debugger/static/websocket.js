@@ -16,6 +16,7 @@ MyApp.on('start', function() {
     var currentEntity = null;
     var messagesHeader = $('#messages-header');
     var entityFilters = {};
+    var entityAutoScroll = {};
 
     var activateKeyHandlers = function() {
         $(document).on('keyup', function(e) {
@@ -109,6 +110,43 @@ MyApp.on('start', function() {
         $('#filter-status').text(statusText);
     };
 
+    var getEntityAutoScroll = function(entityId) {
+        if (entityAutoScroll[entityId] === undefined) {
+            entityAutoScroll[entityId] = true;
+        }
+        return entityAutoScroll[entityId];
+    };
+
+    var setEntityAutoScroll = function(entityId, enabled) {
+        entityAutoScroll[entityId] = enabled;
+        updateAutoScrollButton(entityId);
+    };
+
+    var updateAutoScrollButton = function(entityId) {
+        var enabled = getEntityAutoScroll(entityId);
+        var button = $('#auto-scroll-toggle');
+        var icon = button.find('.auto-scroll-icon');
+        var text = button.find('.auto-scroll-text');
+        
+        if (enabled) {
+            button.removeClass('auto-scroll-off').addClass('auto-scroll-on');
+            text.text('Auto-scroll: ON');
+            icon.text('↓');
+        } else {
+            button.removeClass('auto-scroll-on').addClass('auto-scroll-off');
+            text.text('Auto-scroll: OFF');
+            icon.text('↕');
+        }
+    };
+
+    var isScrolledToBottom = function(element) {
+        return element.scrollTop + element.clientHeight >= element.scrollHeight - 5;
+    };
+
+    var scrollToBottom = function(element) {
+        element.scrollTop = element.scrollHeight;
+    };
+
     var EntityView = Marionette.View.extend({
         tagName: 'div',
         className: 'entity-container',
@@ -174,18 +212,23 @@ MyApp.on('start', function() {
     var MessagesView = Marionette.CollectionView.extend({
         initialize: function() {
             this.listenTo(this.collection, 'reset', this.onCollectionReset);
+            this.listenTo(this.collection, 'add', this.onMessageAdded);
         },
         template: _.template(document.getElementById("messages-template").innerHTML),
         ui: {
             header: '#messages-header',
             searchInput: '#search-input',
             logLevelFilter: '#log-level-filter',
-            clearButton: '#clear-filters'
+            clearButton: '#clear-filters',
+            autoScrollToggle: '#auto-scroll-toggle',
+            messagesContainer: '#messages'
         },
         events: {
             'input @ui.searchInput': 'onSearchChange',
             'change @ui.logLevelFilter': 'onLogLevelChange',
-            'click @ui.clearButton': 'onClearFilters'
+            'click @ui.clearButton': 'onClearFilters',
+            'click @ui.autoScrollToggle': 'onAutoScrollToggle',
+            'scroll @ui.messagesContainer': 'onMessagesScroll'
         },
         childViewContainer: '#messages',
         childView: MessageView,
@@ -195,6 +238,7 @@ MyApp.on('start', function() {
                 this.ui.searchInput.val(filter.searchText);
                 this.ui.logLevelFilter.val(filter.logLevel);
                 updateFilterStatus(currentEntity);
+                updateAutoScrollButton(currentEntity);
             }
         },
         onCollectionReset: function() {
@@ -207,6 +251,24 @@ MyApp.on('start', function() {
                 this.ui.searchInput.val(filter.searchText);
                 this.ui.logLevelFilter.val(filter.logLevel);
                 updateFilterStatus(currentEntity);
+                updateAutoScrollButton(currentEntity);
+                
+                var messagesEl = this.ui.messagesContainer[0];
+                if (getEntityAutoScroll(currentEntity) && messagesEl) {
+                    setTimeout(function() {
+                        scrollToBottom(messagesEl);
+                    }, 10);
+                }
+            }
+        },
+        onMessageAdded: function() {
+            if (currentEntity && getEntityAutoScroll(currentEntity)) {
+                var messagesEl = this.ui.messagesContainer[0];
+                if (messagesEl) {
+                    setTimeout(function() {
+                        scrollToBottom(messagesEl);
+                    }, 10);
+                }
             }
         },
         onSearchChange: function() {
@@ -229,6 +291,20 @@ MyApp.on('start', function() {
             this.ui.searchInput.val('');
             this.ui.logLevelFilter.val('');
             this.applyFilters();
+        },
+        onAutoScrollToggle: function() {
+            if (!currentEntity) return;
+            var currentEnabled = getEntityAutoScroll(currentEntity);
+            setEntityAutoScroll(currentEntity, !currentEnabled);
+        },
+        onMessagesScroll: function() {
+            if (!currentEntity) return;
+            var messagesEl = this.ui.messagesContainer[0];
+            if (messagesEl && isScrolledToBottom(messagesEl)) {
+                if (!getEntityAutoScroll(currentEntity)) {
+                    setEntityAutoScroll(currentEntity, true);
+                }
+            }
         },
         applyFilters: function() {
             if (!currentEntity) return;
@@ -272,6 +348,7 @@ MyApp.on('start', function() {
         var entity = entitiesView.collection.get(entityId);
         entity.set('active', true);
         updateFilterStatus(entityId);
+        updateAutoScrollButton(entityId);
     });
 
     ws.onmessage = function(event) {

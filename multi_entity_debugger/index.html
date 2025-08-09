@@ -19,7 +19,13 @@
         <div id="entities"></div>
     </script>
     <script type="text/template" id="messages-template">
-        <h1 id="messages-header"></h1>
+        <div class="messages-header-row">
+            <h1 id="messages-header"></h1>
+            <button id="auto-scroll-toggle" class="auto-scroll-button auto-scroll-on">
+                <span class="auto-scroll-icon">↓</span>
+                <span class="auto-scroll-text">Auto-scroll: ON</span>
+            </button>
+        </div>
         <div class="message-filters">
             <input type="text" id="search-input" placeholder="Search messages..." />
             <select id="log-level-filter">

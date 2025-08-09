@@ -136,3 +136,59 @@
     color: #6c757d;
     font-weight: bold;
 }
+
+.messages-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.messages-header-row h1 {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.auto-scroll-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.auto-scroll-button:hover {
+    background-color: #f8f9fa;
+}
+
+.auto-scroll-button.auto-scroll-on {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.auto-scroll-button.auto-scroll-on:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.auto-scroll-button.auto-scroll-off {
+    background-color: #6c757d;
+    color: white;
+    border-color: #6c757d;
+}
+
+.auto-scroll-button.auto-scroll-off:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.auto-scroll-icon {
+    font-weight: bold;
+    font-size: 16px;
+}
